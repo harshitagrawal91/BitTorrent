@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Logger;
 
 /**
@@ -22,6 +23,7 @@ public class PeerHandler extends Thread {
     private final Socket socket;
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
+    private int handlerForPeer;
     public String nextExpectedMessage;
     Logger log;
 
@@ -39,13 +41,17 @@ public class PeerHandler extends Thread {
             boolean check = false;
             try {
                 while (true) {
+                      Object obj=in.readObject();
                     switch (nextExpectedMessage) {
+                       
                         case GlobalConstants.HANDSHAKE:
-                            HandshakeObject message = (HandshakeObject) in.readObject();
+                            if(obj instanceof HandshakeObject){
+                           HandshakeObject message = (HandshakeObject) obj;
                             if (message!=null && message.getHeader().equals(GlobalConstants.HANDSHAKEHEADER)) {
                                 if (GlobalConstants.PEERLIST.containsKey(message.getPeerID())) {
                                     GlobalConstants.PEERLIST.get(message.getPeerID()).setPeerHandler(this);
                                     GlobalConstants.expectedMessage.put(message.getPeerID(), GlobalConstants.BITFIELD);
+                                    handlerForPeer=message.getPeerID();
                                     log.info("peer" + Peer.peerID + "_received handshake message from peer" + message.getPeerID());
                                     HandshakeObject handshake = new HandshakeObject();
                                     handshake.setPeerID(Peer.peerID);
@@ -57,9 +63,7 @@ public class PeerHandler extends Thread {
                                     check = true;
                                     break;
                                 }
-                            } else {
-                                check = true;
-                                break;
+                            } 
                             }
                             break;
                     }
@@ -69,6 +73,9 @@ public class PeerHandler extends Thread {
                 }
             } catch (ClassNotFoundException classnot) {
                 log.info("Data received in unknown format");
+            }catch(SocketException s){
+                log.info("connection lost for peer_"+handlerForPeer);
+                return;
             }
         } catch (IOException e) {
             e.printStackTrace();

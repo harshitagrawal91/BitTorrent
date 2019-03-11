@@ -13,6 +13,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Logger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -52,7 +54,10 @@ public class PeerHandler extends Thread {
                                     GlobalConstants.PEERLIST.get(message.getPeerID()).setPeerHandler(this);
                                     GlobalConstants.expectedMessage.put(message.getPeerID(), GlobalConstants.BITFIELD);
                                     handlerForPeer=message.getPeerID();
-                                    log.info("peer" + Peer.peerID + "_received handshake message from peer" + message.getPeerID());
+                                    Date instant = new Date(System.currentTimeMillis());
+                                    SimpleDateFormat sdf = new SimpleDateFormat( "HH:mm:ss" );
+                                    String time = sdf.format( instant );
+                                    log.info(   time+ ": "+" peer" + Peer.peerID + "is connected with peer" + message.getPeerID());
                                     HandshakeObject handshake = new HandshakeObject();
                                     handshake.setPeerID(Peer.peerID);
                                     out.writeObject(handshake);

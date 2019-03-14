@@ -19,12 +19,24 @@ import java.util.logging.SimpleFormatter;
 /**
  *
  * @author harsh
+ *
+ * This file provides implementation details about -
+ *
+ * The logging format to be followed, initiation of the TCP Request
+ *
  */
 public class UtilityHandlers {
 
+    /*
+
+    This method details the logging format, creates a separate log file for
+    a specific peer in it's designated file location.
+
+     */
+
     public static Logger getLogger(int peerID, String currentDir) {
         System.setProperty("java.util.logging.SimpleFormatter.format",
-                "[%1$tF %1$tT] [%4$-2s] %5$s %n");
+                "[%1$tT]: %5$s %n");
         Logger logger = Logger.getLogger("peer_" + peerID);
         FileHandler fh;
 
@@ -43,6 +55,15 @@ public class UtilityHandlers {
         return logger;
     }
     public static boolean sendTCPRequest(PeerInfoConfigObject remotePeer){
+
+        /*
+
+        This method initiates a new socket by taking in the host name and port no.
+        It establishes a handshake after it's creation, with each of the previously
+        existing peers
+
+        */
+
         try{
         Socket socket = new Socket(remotePeer.getHostName(), remotePeer.getHostPort());
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());

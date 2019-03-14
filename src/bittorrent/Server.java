@@ -23,15 +23,24 @@ public class Server extends Thread {
     private ServerSocket listener = null;
     Logger log;
 
+    /**
+     * sets logging and identification details for each instance of the Server class
+     *
+     */
     public Server(PeerInfoConfigObject serverPeer) {
         this.serverPeer = serverPeer;
         log = GlobalConstants.log;
     }
 
+    /**
+     * Creates a new instance of the ServerSocket class and logs this event providing the
+     * peer ID and port number of the created object.
+     *
+     */
     public void run() {
         try {
             listener = new ServerSocket(serverPeer.getHostPort());
-            log.info("Peer" + serverPeer.getPeerID() + "_Server started at port" + serverPeer.getHostPort());
+            log.info("Peer" + serverPeer.getPeerID() + "_Server started at port " + serverPeer.getHostPort());
             while (true) {
                 Socket socket=null;
                 socket= listener.accept();

@@ -10,7 +10,7 @@ import java.util.BitSet;
 
 /**
  *
- * @author harsh
+ *
  *
  * This file provides implementation details for the handshake/orientation
  * between interating peers.

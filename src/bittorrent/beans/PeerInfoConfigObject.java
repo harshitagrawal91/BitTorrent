@@ -9,7 +9,7 @@ import bittorrent.PeerHandler;
 
 /**
  *
- * @author harsh
+ * 
  *
  * This file details the info listed inside the PeerInfo.cfg file.
  *

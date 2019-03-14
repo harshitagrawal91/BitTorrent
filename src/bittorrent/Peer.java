@@ -60,8 +60,6 @@ public class Peer {
                 break;
             }
         }
-        log.info(commonConfig.getFileName());
-        log.info(peerInfo.size() + " size");
         createPeerFolder();
     }
 

@@ -44,7 +44,7 @@ public class UtilityHandlers {
             logger.addHandler(fh);
             SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
-            logger.warning("log check");
+            logger.info("log initialised");
         } catch (SecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -7,8 +7,6 @@ package bittorrent.beans;
 
 /**
  *
- * @author harsh
- *
  * This file details the info listed inside the common.cfg file.
  *
  * The file specifies description about the following properties:
@@ -36,50 +34,62 @@ public class CommonConfigObject {
     long fileSize;
     long pieceSize;
 
+    // Sets the number of prefered neighbours
     public void setNumberOfPreferedNeighbour(int numberOfPreferedNeighbour) {
         this.numberOfPreferedNeighbour = numberOfPreferedNeighbour;
     }
 
+    // Sets the unchoking interval
     public void setUnchokingInterval(int unchokingInterval) {
         this.unchokingInterval = unchokingInterval;
     }
 
+    // Sets the optimistic unchoking interval
     public void setOptimisticUnchokingInterval(int optimisticUnchokingInterval) {
         this.optimisticUnchokingInterval = optimisticUnchokingInterval;
     }
 
+    // Sets the filename
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
+    // Sets the filesize
     public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
 
+    // Sets the piece size
     public void setPieceSize(long pieceSize) {
         this.pieceSize = pieceSize;
     }
 
+    // gets the number of prefered neighbour
     public int getNumberOfPreferedNeighbour() {
         return numberOfPreferedNeighbour;
     }
 
+    // gets the number of unchoking interval
     public int getUnchokingInterval() {
         return unchokingInterval;
     }
 
+    // gets the number of optimistic unchoking interval
     public int getOptimisticUnchokingInterval() {
         return optimisticUnchokingInterval;
     }
 
+    // get the filename
     public String getFileName() {
         return fileName;
     }
 
+    // get the file size
     public long getFileSize() {
         return fileSize;
     }
 
+    // get the piece size
     public long getPieceSize() {
         return pieceSize;
     }

@@ -16,7 +16,9 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author harsh
+ * 
+ * 
+ *
  */
 public class Peer {
 
@@ -29,6 +31,7 @@ public class Peer {
         peerID = id;
     }
 
+    // load the peer
     void loadPeer() {
         ConfLoader confLoader = new ConfLoader();
         String currentDir = System.getProperty("user.dir");
@@ -62,6 +65,7 @@ public class Peer {
         createPeerFolder();
     }
 
+    // creates the peer folder
     public void createPeerFolder() {
         String currentDir = System.getProperty("user.dir");
         File f = new File(currentDir + File.separator + "peer_" + peerID);

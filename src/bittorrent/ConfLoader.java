@@ -17,7 +17,6 @@ import java.util.StringTokenizer;
 
 /**
  *
- * @author harsh
  */
 public class ConfLoader {
 
@@ -61,6 +60,7 @@ public class ConfLoader {
         return conf;
     }
 
+    // read in peer info config
     public ArrayList<PeerInfoConfigObject> readPeerInfoConfig() {
         ArrayList<PeerInfoConfigObject> peerarr = new ArrayList<>();
         File f = new File("PeerInfo.cfg");

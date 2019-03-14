@@ -18,7 +18,6 @@ import java.util.Date;
 
 /**
  *
- * @author harsh
  */
 public class PeerHandler extends Thread {
 
@@ -97,6 +96,7 @@ public class PeerHandler extends Thread {
 
     }
 
+    // method to send message
     public void sendMessage(Object msg) {
         try {
             out.writeObject(msg);

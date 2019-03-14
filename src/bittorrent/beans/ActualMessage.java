@@ -7,8 +7,6 @@ package bittorrent.beans;
 
 /**
  *
- * @author harsh
- *
  * This file details the below properties regarding the messages exchanged between the peers
  * engaged in file transfer -
  *
@@ -27,26 +25,32 @@ public class ActualMessage {
     byte messageType;
     byte [] message;
 
+    // get the length
     public int getLength() {
         return length;
     }
 
+    // setter for length
     public void setLength(int length) {
         this.length = length;
     }
 
+    // getter for messageType
     public byte getMessageType() {
         return messageType;
     }
 
+    // setter for messageType
     public void setMessageType(byte messageType) {
         this.messageType = messageType;
     }
 
+    // getter for message
     public byte[] getMessage() {
         return message;
     }
 
+    // setter for message
     public void setMessage(byte[] message) {
         this.message = message;
     }

@@ -10,9 +10,6 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author harsh
- *
- *
  * The file specifies description about the following globally used properties, variables:
  *
  * expectedMessage - describes out the expected log message to be printed when certain event occurs

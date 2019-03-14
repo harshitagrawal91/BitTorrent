@@ -38,42 +38,52 @@ public class PeerInfoConfigObject {
     boolean haveFile;
     PeerHandler peerHandler = null;
 
+    // get the peerHandler
     public PeerHandler getPeerHandler() {
         return peerHandler;
     }
 
+    // get the peerId
     public int getPeerID() {
         return peerID;
     }
 
+    // get the hostName
     public String getHostName() {
         return hostName;
     }
 
+    // get the hostPort
     public int getHostPort() {
         return hostPort;
     }
 
+    // check if haveFile is true or false
     public boolean isHaveFile() {
         return haveFile;
     }
 
+    // set the peerId
     public void setPeerID(int peerID) {
         this.peerID = peerID;
     }
 
+    // set the peerHandler
     public void setPeerHandler(PeerHandler peerHandler) {
         this.peerHandler = peerHandler;
     }
 
+    // setter for hostname
     public void setHostName(String hostName) {
         this.hostName = hostName;
     }
 
+    // setter for hostPort
     public void setHostPort(int hostPort) {
         this.hostPort = hostPort;
     }
 
+    // setter for haveFile
     public void setHaveFile(boolean haveFile) {
         this.haveFile = haveFile;
     }

@@ -18,8 +18,6 @@ import java.util.logging.SimpleFormatter;
 
 /**
  *
- * @author harsh
- *
  * This file provides implementation details about -
  *
  * The logging format to be followed, initiation of the TCP Request

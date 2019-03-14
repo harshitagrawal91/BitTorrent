@@ -1,7 +1,11 @@
 /*
+ * 
+ * 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
+ * 
+ * 
  */
 package bittorrent;
 
@@ -15,6 +19,8 @@ import java.util.logging.Logger;
 
 /**
  *
+ * 
+ * 
  * @author harsh
  */
 public class Server extends Thread {
@@ -24,6 +30,8 @@ public class Server extends Thread {
     Logger log;
 
     /**
+     * 
+     * 
      * sets logging and identification details for each instance of the Server class
      *
      */
@@ -33,8 +41,11 @@ public class Server extends Thread {
     }
 
     /**
+     * 
+     * 
      * Creates a new instance of the ServerSocket class and logs this event providing the
      * peer ID and port number of the created object.
+     * 
      *
      */
     public void run() {

@@ -31,22 +31,27 @@ public class HandshakeObject implements Serializable{
     BitSet zeroBits=new BitSet(80);
     int peerID;
 
+    // get zero bits
     public BitSet getZeroBits() {
         return zeroBits;
     }
 
+    // set zero bits
     public void setZeroBits(BitSet zeroBits) {
         this.zeroBits = zeroBits;
     }
 
+    // get the peerId
     public int getPeerID() {
         return peerID;
     }
 
+    // set the peerId
     public void setPeerID(int peerID) {
         this.peerID = peerID;
     }
 
+    // get the header
     public String getHeader() {
         return header;
     }

@@ -10,6 +10,25 @@ import bittorrent.PeerHandler;
 /**
  *
  * @author harsh
+ *
+ * This file details the info listed inside the PeerInfo.cfg file.
+ *
+ * The file specifies description about the following properties:
+ *
+ * peerID - Acts as identifier for the peer joining the protocol and
+ * participating in file exchange
+ *
+ * hostName - Name of the host machine
+ *
+ * hostPort - specifies host port number
+ *
+ * haveFile - flag indicating if chosen peer has the file.
+ *
+ * fileName - File chosen to exchange as part of bittorrent protocol
+ *
+ * Additionally, getter setters have been added to fetch, and set values to these properties
+ *
+ *
  */
 public class PeerInfoConfigObject {
 

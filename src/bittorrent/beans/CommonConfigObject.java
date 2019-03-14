@@ -8,6 +8,25 @@ package bittorrent.beans;
 /**
  *
  * @author harsh
+ *
+ * This file details the info listed inside the common.cfg file.
+ *
+ * The file specifies description about the following properties:
+ *
+ * Number of preferred neighbours - The number of neighbours chosen peer decides to scan
+ * for sharing file fragments
+ *
+ * unchoking interval -
+ *
+ * optimisticUnchokingInterval -
+ *
+ * fileName - File chosen to exchange as part of bittorrent protocol
+ *
+ * fileSize - The size of total file in bytes
+ *
+ * pieceSize - The file fragment chosen to be exchanged between the interacting peers
+ *
+ *
  */
 public class CommonConfigObject {
     int numberOfPreferedNeighbour;

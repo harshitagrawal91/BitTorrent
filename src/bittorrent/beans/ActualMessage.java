@@ -5,6 +5,8 @@
  */
 package bittorrent.beans;
 
+import java.io.Serializable;
+
 /**
  *
  * This file details the below properties regarding the messages exchanged between the peers
@@ -20,7 +22,7 @@ package bittorrent.beans;
  * properties respectively.
  *
  */
-public class ActualMessage {
+public class ActualMessage implements Serializable {
     int length;
     byte messageType;
     byte [] message;

@@ -67,7 +67,7 @@ public class Server extends Thread {
             try {
                 listener.close();
             } catch (IOException e) {
-
+              System.out.print(e);
             }
         }
     }

@@ -5,6 +5,7 @@
  */
 package bittorrent;
 
+import bittorrent.beans.ActualMessage;
 import bittorrent.beans.GlobalConstants;
 import bittorrent.beans.HandshakeObject;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Logger;
 import java.text.SimpleDateFormat;
+import java.util.BitSet;
 import java.util.Date;
 
 /**
@@ -43,34 +45,39 @@ public class PeerHandler extends Thread {
             try {
                 while (true) {
                       Object obj=in.readObject();
-                    switch (nextExpectedMessage) {
-                       
-                        case GlobalConstants.HANDSHAKE:
                             if(obj instanceof HandshakeObject){
                            HandshakeObject message = (HandshakeObject) obj;
                             if (message!=null && message.getHeader().equals(GlobalConstants.HANDSHAKEHEADER)) {
                                 if (GlobalConstants.PEERLIST.containsKey(message.getPeerID())) {
                                     GlobalConstants.PEERLIST.get(message.getPeerID()).setPeerHandler(this);
-                                    GlobalConstants.expectedMessage.put(message.getPeerID(), GlobalConstants.BITFIELD);
-                                    handlerForPeer=message.getPeerID();
-                                    Date instant = new Date(System.currentTimeMillis());
-                                    SimpleDateFormat sdf = new SimpleDateFormat( "HH:mm:ss" );
-                                    String time = sdf.format( instant );
-                                    log.info(   time+ ": "+" peer" + Peer.peerID + "is connected with peer" + message.getPeerID());
+                                    handlerForPeer=message.getPeerID();  
+                                    log.info(" peer" + Peer.peerID + "is connected with peer" + message.getPeerID());
+                                    if(GlobalConstants.expectedMessage.get(message.getPeerID())==GlobalConstants.HANDSHAKE){
                                     HandshakeObject handshake = new HandshakeObject();
                                     handshake.setPeerID(Peer.peerID);
                                     out.writeObject(handshake);
                                     out.flush();
-                                    GlobalConstants.expectedMessage.put(message.getPeerID(), GlobalConstants.BITFIELD);
-                                    nextExpectedMessage=GlobalConstants.expectedMessage.get(message.getPeerID());
+                                    }
+                                    if(Peer.currentPeer.isHaveFile()){
+                                        ActualMessage bitfieldMessage=new ActualMessage();
+                                        bitfieldMessage.setMessageType(GlobalConstants.messageType.BITFIELD.getValue());
+                                        bitfieldMessage.setMessage(Peer.currentPeer.getChunks().toByteArray());
+                                        bitfieldMessage.setLength(bitfieldMessage.getMessage().length+1);
+                                        out.writeObject(bitfieldMessage);
+                                        out.flush();
+                                    }
                                 } else {
                                     check = true;
                                     break;
                                 }
                             } 
+                            }else if(obj instanceof ActualMessage){
+                                ActualMessage message = (ActualMessage) obj;
+                                if(message.getMessageType()==GlobalConstants.messageType.BITFIELD.getValue()){
+                                    GlobalConstants.PEERLIST.get(handlerForPeer).setChunks(BitSet.valueOf(message.getMessage()));
+                                    log.info("received bitfield message from peer"+handlerForPeer+"--"+GlobalConstants.PEERLIST.get(handlerForPeer).getChunks());
+                                }
                             }
-                            break;
-                    }
                     if (check == true) {
                         break;
                     }

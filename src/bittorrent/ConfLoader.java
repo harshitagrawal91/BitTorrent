@@ -76,7 +76,7 @@ public class ConfLoader {
                 if (Integer.parseInt(s[3]) == 1) {
                     peer.setHaveFile(true);
                 } else if (Integer.parseInt(s[3]) == 0) {
-                    peer.setHaveFile(false);
+                    peer.setHaveFile(false); 
                 }
                 peerarr.add(peer);
             }

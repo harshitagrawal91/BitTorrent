@@ -9,9 +9,11 @@ import bittorrent.beans.PeerInfoConfigObject;
 import bittorrent.beans.CommonConfigObject;
 import bittorrent.beans.GlobalConstants;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -23,8 +25,8 @@ import java.util.logging.Logger;
 public class Peer {
 
     public static int peerID;
-    PeerInfoConfigObject serverInfo;
-    CommonConfigObject commonConfig;
+    public static PeerInfoConfigObject currentPeer;
+    public static CommonConfigObject commonConfig;
     ArrayList<PeerInfoConfigObject> peerInfo;
     Logger log;
     Peer(int id) {
@@ -36,6 +38,8 @@ public class Peer {
         ConfLoader confLoader = new ConfLoader();
         String currentDir = System.getProperty("user.dir");
         GlobalConstants.log = UtilityHandlers.getLogger(peerID, currentDir);
+        createPeerFolder();
+        
         log=GlobalConstants.log;
         commonConfig = confLoader.readCommonConfig();
         peerInfo = confLoader.readPeerInfoConfig();
@@ -45,11 +49,30 @@ public class Peer {
             if(peer.getPeerID()!=peerID){
             GlobalConstants.expectedMessage.put(peer.getPeerID(), GlobalConstants.HANDSHAKE);
             GlobalConstants.PEERLIST.put(peer.getPeerID(), peer);
+            System.out.print(peer.getChunks());
             }else{
-                serverInfo=peer;
+                currentPeer=peer;
+                if(peer.isHaveFile()){
+                    try {
+                         if(Peer.commonConfig !=null){
+                    long fileSize=Peer.commonConfig.getFileSize();
+                    long pieceSize=Peer.commonConfig.getPieceSize();
+                     long numSplits = fileSize / pieceSize;
+                     long remainingBytes = fileSize % pieceSize;
+                     if(remainingBytes>0){
+                         numSplits=numSplits+1;
+                     }
+                    peer.getChunks().set(0,new Long(numSplits).intValue(), true);
+                    }
+                        String chunkPath=currentDir+File.separator+commonConfig.getFileName();
+                        FileSegregation.splitFile(chunkPath, commonConfig.getPieceSize());
+                    } catch (IOException ex) {
+                       log.severe("unable to split file"+ex);
+                    }
+                }
             }
         }
-        Server TCPserver=new Server(serverInfo);
+        Server TCPserver=new Server(currentPeer);
         TCPserver.start();
         iterator=peerInfo.listIterator();
         while (iterator.hasNext()){
@@ -60,7 +83,7 @@ public class Peer {
                 break;
             }
         }
-        createPeerFolder();
+//        createPeerFolder();
     }
 
     // creates the peer folder
@@ -70,6 +93,8 @@ public class Peer {
         if (!f.exists() && !f.isDirectory()) {
             f.mkdirs();
         }
+        FileSegregation.dir=f.getPath();
+        System.out.print(FileSegregation.dir);
 
     }
 }

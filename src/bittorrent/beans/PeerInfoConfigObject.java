@@ -6,6 +6,7 @@
 package bittorrent.beans;
 
 import bittorrent.PeerHandler;
+import java.util.BitSet;
 
 /**
  *
@@ -37,6 +38,15 @@ public class PeerInfoConfigObject {
     int hostPort;
     boolean haveFile;
     PeerHandler peerHandler = null;
+    BitSet chunks=new BitSet(1000);
+
+    public BitSet getChunks() {
+        return chunks;
+    }
+
+    public void setChunks(BitSet chunks) {
+        this.chunks = chunks;
+    }
 
     // get the peerHandler
     public PeerHandler getPeerHandler() {

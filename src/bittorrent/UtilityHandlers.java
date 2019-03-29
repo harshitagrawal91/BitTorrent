@@ -5,6 +5,7 @@
  */
 package bittorrent;
 
+import bittorrent.beans.GlobalConstants;
 import bittorrent.beans.HandshakeObject;
 import bittorrent.beans.PeerInfoConfigObject;
 import java.io.IOException;
@@ -71,6 +72,7 @@ public class UtilityHandlers {
              handshake.setPeerID(Peer.peerID);
              out.writeObject(handshake);
 	     out.flush();
+             GlobalConstants.expectedMessage.put(remotePeer.getPeerID(), GlobalConstants.BITFIELD);
              new PeerHandler(socket,out,in).start();
              
         }catch(IOException e){

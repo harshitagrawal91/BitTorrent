@@ -27,6 +27,7 @@ public class PeerHandler extends Thread {
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
     private int handlerForPeer;
+    private MessageHandler messageHandler=null;
     public String nextExpectedMessage;
     Logger log;
 
@@ -66,6 +67,10 @@ public class PeerHandler extends Thread {
                                         out.writeObject(bitfieldMessage);
                                         out.flush();
                                     }
+                                    if(messageHandler==null){
+                                       messageHandler=new MessageHandler();
+                                       messageHandler.start();
+                                    }
                                 } else {
                                     check = true;
                                     break;
@@ -75,7 +80,10 @@ public class PeerHandler extends Thread {
                                 ActualMessage message = (ActualMessage) obj;
                                 if(message.getMessageType()==GlobalConstants.messageType.BITFIELD.getValue()){
                                     GlobalConstants.PEERLIST.get(handlerForPeer).setChunks(BitSet.valueOf(message.getMessage()));
+//                                    messageHandler.messageQueue.add(message);
                                     log.info("received bitfield message from peer"+handlerForPeer+"--"+GlobalConstants.PEERLIST.get(handlerForPeer).getChunks());
+                                }else{
+                                    messageHandler.messageQueue.add(message);
                                 }
                             }
                     if (check == true) {

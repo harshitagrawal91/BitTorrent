@@ -6,13 +6,26 @@
 package bittorrent;
 
 import bittorrent.beans.ActualMessage;
+import bittorrent.beans.HandshakeObject;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import bittorrent.beans.GlobalConstants;
+import java.util.BitSet;
+import java.util.logging.Logger;
 /**
  *
  * @author harsh
  */
 public class MessageHandler extends Thread {
+    
+    private HandshakeObject handshakeObject = null;
+    Logger log;
+    
+    MessageHandler(HandshakeObject handshakeObject) {
+        this.handshakeObject = handshakeObject;
+        this.log = GlobalConstants.log;
+    }
+    
+    
     public ConcurrentLinkedQueue<ActualMessage> 
             messageQueue = new ConcurrentLinkedQueue<ActualMessage>(); 
     
@@ -33,5 +46,8 @@ public class MessageHandler extends Thread {
     
     private void handleBitfieldMessage(ActualMessage message) {
         System.out.print("bitfield message received" + message.getLength());
+        GlobalConstants.PEERLIST.get(handshakeObject.getPeerID()).setChunks(BitSet.valueOf(message.getMessage()));
+        log.info("received bitfield message from peer"+handshakeObject.getPeerID()+"--"+GlobalConstants.PEERLIST.get(handshakeObject.getPeerID()).getChunks());
+        log.info("current peer port: "+Peer.currentPeer.getHostPort()+"my bitfield:"+Peer.currentPeer.getChunks());
     }
 }

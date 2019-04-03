@@ -68,7 +68,7 @@ public class PeerHandler extends Thread {
                                         out.flush();
                                     }
                                     if(messageHandler==null){
-                                       messageHandler=new MessageHandler();
+                                       messageHandler=new MessageHandler(message);
                                        messageHandler.start();
                                     }
                                 } else {
@@ -77,14 +77,7 @@ public class PeerHandler extends Thread {
                                 }
                             } 
                             }else if(obj instanceof ActualMessage){
-                                ActualMessage message = (ActualMessage) obj;
-                                if(message.getMessageType()==GlobalConstants.messageType.BITFIELD.getValue()){
-                                    GlobalConstants.PEERLIST.get(handlerForPeer).setChunks(BitSet.valueOf(message.getMessage()));
-                                    messageHandler.messageQueue.add(message);
-                                    log.info("received bitfield message from peer"+handlerForPeer+"--"+GlobalConstants.PEERLIST.get(handlerForPeer).getChunks());
-                                }else{
-                                    messageHandler.messageQueue.add(message);
-                                }
+                                messageHandler.messageQueue.add((ActualMessage) obj);
                             }
                     if (check == true) {
                         break;

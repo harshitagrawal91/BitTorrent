@@ -80,7 +80,7 @@ public class PeerHandler extends Thread {
                                 ActualMessage message = (ActualMessage) obj;
                                 if(message.getMessageType()==GlobalConstants.messageType.BITFIELD.getValue()){
                                     GlobalConstants.PEERLIST.get(handlerForPeer).setChunks(BitSet.valueOf(message.getMessage()));
-//                                    messageHandler.messageQueue.add(message);
+                                    messageHandler.messageQueue.add(message);
                                     log.info("received bitfield message from peer"+handlerForPeer+"--"+GlobalConstants.PEERLIST.get(handlerForPeer).getChunks());
                                 }else{
                                     messageHandler.messageQueue.add(message);

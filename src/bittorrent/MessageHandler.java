@@ -43,7 +43,10 @@ public class MessageHandler extends Thread {
                     
                 } else if (message.getMessageType() == GlobalConstants.messageType.INTERESTED.getValue()) {
                     handleInterestedMessage(message);
+                } else if (message.getMessageType() == GlobalConstants.messageType.NOT_INTERESTED.getValue()) {
+                    handleNotInterestedMessage(message);
                 }
+                
             }
         }
     }
@@ -79,18 +82,24 @@ public class MessageHandler extends Thread {
             interested = a.equals(Peer.currentPeer.getChunks());
         }
         
-        if (interested) {
-            log.info("current peer port: "+Peer.currentPeer.getHostPort()+"is interested!");
-            ActualMessage interestedMessage = new ActualMessage();
-            interestedMessage.setMessageType(GlobalConstants.messageType.INTERESTED.getValue());
-            interestedMessage.setLength(1);
-            peerHandler.sendMessage(interestedMessage);
-        }
-     
-        log.info("current peer port: "+Peer.currentPeer.getHostPort()+"my bitfield:"+Peer.currentPeer.getChunks());
+        ActualMessage interestedOrNotMessage = new ActualMessage();
+        interestedOrNotMessage.setLength(1);
+        
+        if (interested)
+            interestedOrNotMessage.setMessageType(GlobalConstants.messageType.INTERESTED.getValue());
+        else
+            interestedOrNotMessage.setMessageType(GlobalConstants.messageType.NOT_INTERESTED.getValue());
+        
+        
+        peerHandler.sendMessage(interestedOrNotMessage);
+        
     }
     
     private void handleInterestedMessage(ActualMessage message) {
         log.info("received interested message from"+Integer.toString(handshakeObject.getPeerID())+",current peer port: "+Peer.currentPeer.getHostPort());
+    }
+    
+    private void handleNotInterestedMessage(ActualMessage message) {
+        log.info("received not interested message from"+Integer.toString(handshakeObject.getPeerID())+",current peer port: "+Peer.currentPeer.getHostPort());
     }
 }

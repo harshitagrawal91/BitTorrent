@@ -28,6 +28,7 @@ public class GlobalConstants {
     public static final String HANDSHAKE="handshake"; 
     public static final String HANDSHAKEHEADER="P2PFILESHARINGPROJ";
     public static final String BITFIELD="bitfield";
+    public static HashMap <Integer,PeerInfoConfigObject> interestedPeers=new HashMap<>();
     public static Logger log;
     public static String filePath=null;
     public static enum messageType {

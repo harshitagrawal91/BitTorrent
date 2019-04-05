@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,7 +26,7 @@ import java.util.logging.Logger;
  *
  */
 public class Peer {
-
+    static ScheduledExecutorService scheduler;
     public static int peerID;
     public static PeerInfoConfigObject currentPeer;
     public static CommonConfigObject commonConfig;
@@ -31,6 +34,7 @@ public class Peer {
     Logger log;
     Peer(int id) {
         peerID = id;
+        scheduler = Executors.newScheduledThreadPool(2);	
     }
 
     // load the peer
@@ -74,6 +78,8 @@ public class Peer {
         }
         Server TCPserver=new Server(currentPeer);
         TCPserver.start();
+        
+        scheduler.scheduleAtFixedRate(new ChokeUnchokeHandler(), 3, commonConfig.getUnchokingInterval(), TimeUnit.SECONDS);
         iterator=peerInfo.listIterator();
         while (iterator.hasNext()){
             PeerInfoConfigObject peer = iterator.next();

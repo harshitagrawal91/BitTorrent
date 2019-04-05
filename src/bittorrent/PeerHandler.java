@@ -68,7 +68,7 @@ public class PeerHandler extends Thread {
                                         out.flush();
                                     }
                                     if(messageHandler==null){
-                                       messageHandler=new MessageHandler(message);
+                                       messageHandler=new MessageHandler(this, message);
                                        messageHandler.start();
                                     }
                                 } else {

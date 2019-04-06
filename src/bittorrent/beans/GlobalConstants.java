@@ -6,6 +6,7 @@
 package bittorrent.beans;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
@@ -28,8 +29,10 @@ public class GlobalConstants {
     public static final String HANDSHAKE="handshake"; 
     public static final String HANDSHAKEHEADER="P2PFILESHARINGPROJ";
     public static final String BITFIELD="bitfield";
-    public static HashMap <Integer,PeerInfoConfigObject> interestedPeers=new HashMap<>();
+    public static ConcurrentHashMap <Integer,PeerInfoConfigObject> interestedPeers=new ConcurrentHashMap<>();
     public static Logger log;
+    
+    public static CommonConfigObject commonConfig;
     public static String filePath=null;
     public static enum messageType {
     CHOKE((byte)0),

@@ -46,6 +46,7 @@ public class Peer {
         
         log=GlobalConstants.log;
         commonConfig = confLoader.readCommonConfig();
+        GlobalConstants.commonConfig=commonConfig;
         peerInfo = confLoader.readPeerInfoConfig();
         ListIterator<PeerInfoConfigObject> iterator = peerInfo.listIterator();
         while (iterator.hasNext()) {
@@ -80,6 +81,8 @@ public class Peer {
         TCPserver.start();
         
         scheduler.scheduleAtFixedRate(new ChokeUnchokeHandler(), 3, commonConfig.getUnchokingInterval(), TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new OptimisticallyUnchokeHandler(), 3, commonConfig.getOptimisticUnchokingInterval(), TimeUnit.SECONDS);
+
         iterator=peerInfo.listIterator();
         while (iterator.hasNext()){
             PeerInfoConfigObject peer = iterator.next();

@@ -78,6 +78,10 @@ public class PeerHandler extends Thread {
                             } 
                             }else if(obj instanceof ActualMessage){
                                 messageHandler.messageQueue.add((ActualMessage) obj);
+                                if(messageHandler.getState().equals(Thread.State.WAITING))
+                                    synchronized(messageHandler){
+                                messageHandler.notify();
+                                    }
                             }
                     if (check == true) {
                         break;

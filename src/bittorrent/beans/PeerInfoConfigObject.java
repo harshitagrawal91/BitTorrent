@@ -38,6 +38,33 @@ public class PeerInfoConfigObject {
     int hostPort;
     boolean haveFile;
     PeerHandler peerHandler = null;
+    float downloadSpeed=0;
+    boolean optimisticallyUnchoke=false;
+    Byte state=(byte)0;
+    public boolean isOptimisticallyUnchoke() {
+        return optimisticallyUnchoke;
+    }
+
+    public void setOptimisticallyUnchoke(boolean optimisticallyUnchoke) {
+        this.optimisticallyUnchoke = optimisticallyUnchoke;
+    }
+   
+
+    public Byte getState() {
+        return state;
+    }
+
+    public void setState(Byte state) {
+        this.state = state;
+    }
+
+    public float getDownloadSpeed() {
+        return downloadSpeed;
+    }
+
+    public void setDownloadSpeed(float downloadSpeed) {
+        this.downloadSpeed = downloadSpeed;
+    }
     BitSet chunks=new BitSet(1000);
 
     public BitSet getChunks() {

@@ -10,6 +10,7 @@ import bittorrent.beans.HandshakeObject;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import bittorrent.beans.GlobalConstants;
 import java.util.BitSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
  *
@@ -39,7 +40,7 @@ public class MessageHandler extends Thread {
                 } else if (message.getMessageType() == GlobalConstants.messageType.CHOKE.getValue()) {
                     
                 } else if (message.getMessageType() == GlobalConstants.messageType.UNCHOKE.getValue()) {
-                    
+                    handleUnchokeMessage(message);
                 } else if (message.getMessageType() == GlobalConstants.messageType.INTERESTED.getValue()) {
                     handleInterestedMessage(message);
                 } else if (message.getMessageType() == GlobalConstants.messageType.NOT_INTERESTED.getValue()) {
@@ -47,7 +48,13 @@ public class MessageHandler extends Thread {
                 }
                 
             }else{
-//                this.wait();
+                synchronized(this){
+                try {
+                    wait();
+                } catch (InterruptedException ex) {
+                   
+                }
+                }
             }
         }
     }
@@ -104,5 +111,9 @@ public class MessageHandler extends Thread {
     
     private void handleNotInterestedMessage(ActualMessage message) {
         log.info("received not interested message from"+Integer.toString(peerId)+",current peer port: "+Peer.currentPeer.getHostPort());
+    }
+    
+    private void handleUnchokeMessage(ActualMessage message) {
+        log.info("received unchoke message from"+Integer.toString(peerId)+",current peer port: "+Peer.currentPeer.getHostPort());
     }
 }

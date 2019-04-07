@@ -66,12 +66,6 @@ public class Peer {
                 GlobalConstants.expectedMessage.put(peer.getPeerID(), GlobalConstants.HANDSHAKE);
                 if (peer.isHaveFile()) {
                         peer.getChunks().set(0, new Long(numSplits).intValue(), true);
-                        String chunkPath = currentDir + File.separator + commonConfig.getFileName();
-                        try {
-                            FileSegregation.splitFile(chunkPath, commonConfig.getPieceSize());
-                        } catch (IOException ex) {
-                            Logger.getLogger(Peer.class.getName()).log(Level.SEVERE, null, ex);
-                        }
                     } else {
                         peer.setChunks(new BitSet((int) numSplits));
                     }

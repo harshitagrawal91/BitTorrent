@@ -11,7 +11,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import bittorrent.beans.GlobalConstants;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.BitSet;
@@ -83,6 +86,7 @@ public class MessageHandler extends Thread {
         }
 
         // TODO: find out if you don't have a chunk which your peer has
+        // THIS IS A BUG, change
         // a:  0011
         // b:  1011
         // a & b == a means a is interested in b (provided a is not equal to b)
@@ -170,11 +174,26 @@ public class MessageHandler extends Thread {
 //         Peer.currentPeer.getChunks().set(
         byte[] chunk = message.getMessage();
         byte[] chunkIdArr = new byte[4];
-        for (int i = 0; i < 4; i++) {
-            chunkIdArr[i] = chunk[i];
+        byte[] fileChunk = new byte[chunk.length - 4];
+        for (int i = 0; i < chunk.length; i++) {
+            if (i < 4)
+                chunkIdArr[i] = chunk[i];
+            else
+                fileChunk[i-4] = chunk[i];
         }
         int chunkId = ByteBuffer.wrap(chunkIdArr).getInt();
         Peer.currentPeer.getChunks().set(chunkId);
         log.info("received chunkId" + Integer.toString(chunkId) + ",current peer port: " + Peer.currentPeer.getHostPort());
+        OutputStream os; 
+        try {
+            os = new FileOutputStream(new File(GlobalConstants.chunkDirectory + File.separator + chunkId + ".splitPart"));
+            os.write(fileChunk);  
+            os.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         
     }
 }

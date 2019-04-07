@@ -40,7 +40,16 @@ public class PeerInfoConfigObject {
     PeerHandler peerHandler = null;
     float downloadSpeed=0;
     boolean optimisticallyUnchoke=false;
-    Byte state=(byte)0;
+    volatile boolean unchockedForCurrentPeers=false; 
+
+    public boolean isUnchockedForCurrentPeers() {
+        return unchockedForCurrentPeers;
+    }
+
+    public void setUnchockedForCurrentPeers(boolean unchockedForCurrentPeers) {
+        this.unchockedForCurrentPeers = unchockedForCurrentPeers;
+    }
+    volatile Byte state=(byte)0;
     public boolean isOptimisticallyUnchoke() {
         return optimisticallyUnchoke;
     }

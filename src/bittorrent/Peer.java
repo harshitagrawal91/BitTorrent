@@ -78,7 +78,7 @@ public class Peer {
                         peer.getChunks().set(0, new Long(numSplits).intValue(), true);
                         String chunkPath = currentDir + File.separator + commonConfig.getFileName();
                         try {
-                            FileSegregation.splitFile(chunkPath, commonConfig.getPieceSize());
+                            FileUtility.splitFile(chunkPath, commonConfig.getPieceSize());
                         } catch (IOException ex) {
                             Logger.getLogger(Peer.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -114,8 +114,8 @@ public class Peer {
         if (!f.exists() && !f.isDirectory()) {
             f.mkdirs();
         }
-        FileSegregation.dir = f.getPath();
-        System.out.print(FileSegregation.dir);
+        FileUtility.dir = f.getPath();
+        System.out.print(FileUtility.dir);
 
     }
 }

@@ -44,7 +44,7 @@ public class MessageHandler extends Thread {
                 if (message.getMessageType() == GlobalConstants.messageType.BITFIELD.getValue()) {
                     handleBitfieldMessage(message);
                 } else if (message.getMessageType() == GlobalConstants.messageType.CHOKE.getValue()) {
-
+                    handleChokeMessage(message);
                 } else if (message.getMessageType() == GlobalConstants.messageType.UNCHOKE.getValue()) {
                     handleUnchokeMessage(message);
                 } else if (message.getMessageType() == GlobalConstants.messageType.INTERESTED.getValue()) {
@@ -67,6 +67,10 @@ public class MessageHandler extends Thread {
                 }
             }
         }
+    }
+
+    private void handleChokeMessage(ActualMessage message) {
+        GlobalConstants.PEERLIST.get(peerId).setUnchockedForCurrentPeers(false);
     }
 
     private void handleBitfieldMessage(ActualMessage message) {
@@ -124,30 +128,32 @@ public class MessageHandler extends Thread {
     }
 
     private synchronized void sendRequestMessage() {
-       // if(GlobalConstants.PEERLIST.get(peerId).getState()==GlobalConstants.messageType.UNCHOKE.getValue()){
-        BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
-        currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
-        BitSet remotePeerChunk = (BitSet) GlobalConstants.PEERLIST.get(peerId).getChunks().clone();
-        remotePeerChunk.and(currentPeerChunk);
-        for (int i = remotePeerChunk.nextSetBit(0); i >= 0; i = remotePeerChunk.nextSetBit(i + 1)) {
-            if (!GlobalConstants.requestedChunks.contains(i)) {
-                GlobalConstants.requestedChunks.put(i, "");
-                ActualMessage request = new ActualMessage();
-                request.setLength(5);
-                request.setMessageType(GlobalConstants.messageType.REQUEST.getValue());
-                request.setMessage(ByteBuffer.allocate(4).putInt(i).array());
-                GlobalConstants.PEERLIST.get(peerId).getPeerHandler().sendMessage(request);
-                break;
-            }
-            if (i == Integer.MAX_VALUE) {
-                break;
+        System.out.println(GlobalConstants.PEERLIST.get(peerId).getState());
+        if (GlobalConstants.PEERLIST.get(peerId).isUnchockedForCurrentPeers()) {
+            BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
+            currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
+            BitSet remotePeerChunk = (BitSet) GlobalConstants.PEERLIST.get(peerId).getChunks().clone();
+            remotePeerChunk.and(currentPeerChunk);
+            for (int i = remotePeerChunk.nextSetBit(0); i >= 0; i = remotePeerChunk.nextSetBit(i + 1)) {
+                if (!GlobalConstants.requestedChunks.contains(i)) {
+                    GlobalConstants.requestedChunks.put(i, "");
+                    ActualMessage request = new ActualMessage();
+                    request.setLength(5);
+                    request.setMessageType(GlobalConstants.messageType.REQUEST.getValue());
+                    request.setMessage(ByteBuffer.allocate(4).putInt(i).array());
+                    GlobalConstants.PEERLIST.get(peerId).getPeerHandler().sendMessage(request);
+                    break;
+                }
+                if (i == Integer.MAX_VALUE) {
+                    break;
+                }
             }
         }
-       // }
     }
 
     private void handleUnchokeMessage(ActualMessage message) {
         log.info("received unchoke message from" + Integer.toString(peerId) + ",current peer port: " + Peer.currentPeer.getHostPort());
+        GlobalConstants.PEERLIST.get(peerId).setUnchockedForCurrentPeers(true);
         sendRequestMessage();
 
     }
@@ -160,9 +166,9 @@ public class MessageHandler extends Thread {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             outputStream.write(message.getMessage());
             outputStream.write(fileChunk);
-            ActualMessage pieceMessage=new ActualMessage();
+            ActualMessage pieceMessage = new ActualMessage();
             pieceMessage.setMessage(outputStream.toByteArray());
-            pieceMessage.setLength(pieceMessage.getMessage().length+1);
+            pieceMessage.setLength(pieceMessage.getMessage().length + 1);
             pieceMessage.setMessageType(GlobalConstants.messageType.PIECE.getValue());
             GlobalConstants.PEERLIST.get(peerId).getPeerHandler().sendMessage(pieceMessage);
 
@@ -170,30 +176,41 @@ public class MessageHandler extends Thread {
             Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-   public void handlePiecetMessage(ActualMessage message){
-//         Peer.currentPeer.getChunks().set(
+
+    public void handlePiecetMessage(ActualMessage message) {
         byte[] chunk = message.getMessage();
         byte[] chunkIdArr = new byte[4];
         byte[] fileChunk = new byte[chunk.length - 4];
         for (int i = 0; i < chunk.length; i++) {
-            if (i < 4)
+            if (i < 4) {
                 chunkIdArr[i] = chunk[i];
-            else
-                fileChunk[i-4] = chunk[i];
+            } else {
+                fileChunk[i - 4] = chunk[i];
+            }
         }
         int chunkId = ByteBuffer.wrap(chunkIdArr).getInt();
-        Peer.currentPeer.getChunks().set(chunkId);
+
         log.info("received chunkId" + Integer.toString(chunkId) + ",current peer port: " + Peer.currentPeer.getHostPort());
-        OutputStream os; 
+        OutputStream os;
         try {
             os = new FileOutputStream(new File(GlobalConstants.chunkDirectory + File.separator + chunkId + ".splitPart"));
-            os.write(fileChunk);  
+            os.write(fileChunk);
             os.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-         
+        Peer.currentPeer.getChunks().set(chunkId);
+        BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
+        currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
+        if (currentPeerChunk.isEmpty()) {
+            File[] chunksFiles = new File[(int) GlobalConstants.chunkCount];
+            for (int i = 0; i < GlobalConstants.chunkCount; i++) {
+                chunksFiles[i] = new File(GlobalConstants.chunkDirectory + File.separator + i + ".splitPart");
+            }
+            FileUtility.mergeFiles(chunksFiles, GlobalConstants.chunkDirectory);
+        }
+        sendRequestMessage();
     }
 }

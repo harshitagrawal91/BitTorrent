@@ -29,9 +29,11 @@ public class GlobalConstants {
     public static final String HANDSHAKE="handshake"; 
     public static final String HANDSHAKEHEADER="P2PFILESHARINGPROJ";
     public static final String BITFIELD="bitfield";
+    public static String chunkDirectory;
     public static ConcurrentHashMap <Integer,PeerInfoConfigObject> interestedPeers=new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Integer,String> requestedChunks=new ConcurrentHashMap<>();
     public static Logger log;
-    
+    public static long chunkCount=0;
     public static CommonConfigObject commonConfig;
     public static String filePath=null;
     public static enum messageType {

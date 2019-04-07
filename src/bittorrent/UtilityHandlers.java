@@ -69,7 +69,7 @@ public class UtilityHandlers {
 	     out.flush();
              ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
              HandshakeObject handshake=new HandshakeObject();
-             handshake.setPeerID(Peer.peerID);
+             handshake.setPeerID(Peer.currentPeerID);
              out.writeObject(handshake);
 	     out.flush();
              GlobalConstants.expectedMessage.put(remotePeer.getPeerID(), GlobalConstants.BITFIELD);

@@ -11,6 +11,7 @@ import bittorrent.beans.GlobalConstants;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.concurrent.Executors;
@@ -21,88 +22,105 @@ import java.util.logging.Logger;
 
 /**
  *
- * 
- * 
+ *
+ *
  *
  */
 public class Peer {
+
     static ScheduledExecutorService scheduler;
-    public static int peerID;
+    public static int currentPeerID;
     public static PeerInfoConfigObject currentPeer;
     public static CommonConfigObject commonConfig;
     ArrayList<PeerInfoConfigObject> peerInfo;
     Logger log;
+
     Peer(int id) {
-        peerID = id;
-        scheduler = Executors.newScheduledThreadPool(2);	
+        currentPeerID = id;
+        scheduler = Executors.newScheduledThreadPool(2);
     }
 
     // load the peer
     void loadPeer() {
         ConfLoader confLoader = new ConfLoader();
         String currentDir = System.getProperty("user.dir");
-        GlobalConstants.log = UtilityHandlers.getLogger(peerID, currentDir);
+        GlobalConstants.log = UtilityHandlers.getLogger(currentPeerID, currentDir);
         createPeerFolder();
-        
-        log=GlobalConstants.log;
+        log = GlobalConstants.log;
         commonConfig = confLoader.readCommonConfig();
-        GlobalConstants.commonConfig=commonConfig;
+        GlobalConstants.commonConfig = commonConfig;
         peerInfo = confLoader.readPeerInfoConfig();
         ListIterator<PeerInfoConfigObject> iterator = peerInfo.listIterator();
-        while (iterator.hasNext()) {
-             PeerInfoConfigObject peer = iterator.next();
-            if(peer.getPeerID()!=peerID){
-            GlobalConstants.expectedMessage.put(peer.getPeerID(), GlobalConstants.HANDSHAKE);
-            GlobalConstants.PEERLIST.put(peer.getPeerID(), peer);
-            System.out.print(peer.getChunks());
-            }else{
-                currentPeer=peer;
-                if(peer.isHaveFile()){
-                    try {
-                         if(Peer.commonConfig !=null){
-                    long fileSize=Peer.commonConfig.getFileSize();
-                    long pieceSize=Peer.commonConfig.getPieceSize();
-                     long numSplits = fileSize / pieceSize;
-                     long remainingBytes = fileSize % pieceSize;
-                     if(remainingBytes>0){
-                         numSplits=numSplits+1;
-                     }
-                    peer.getChunks().set(0,new Long(numSplits).intValue(), true);
+        if (Peer.commonConfig != null) {
+                    long fileSize = Peer.commonConfig.getFileSize();
+                    long pieceSize = Peer.commonConfig.getPieceSize();
+                    long numSplits = fileSize / pieceSize;
+                    long remainingBytes = fileSize % pieceSize;
+                    if (remainingBytes > 0) {
+                        numSplits = numSplits + 1;
                     }
-                        String chunkPath=currentDir+File.separator+commonConfig.getFileName();
-                        FileSegregation.splitFile(chunkPath, commonConfig.getPieceSize());
-                    } catch (IOException ex) {
-                       log.severe("unable to split file"+ex);
+                    GlobalConstants.chunkCount = numSplits;
+        while (iterator.hasNext()) {
+            PeerInfoConfigObject peer = iterator.next();
+            if (peer.getPeerID() != currentPeerID) {
+                GlobalConstants.expectedMessage.put(peer.getPeerID(), GlobalConstants.HANDSHAKE);
+                if (peer.isHaveFile()) {
+                        peer.getChunks().set(0, new Long(numSplits).intValue(), true);
+                        String chunkPath = currentDir + File.separator + commonConfig.getFileName();
+                        try {
+                            FileSegregation.splitFile(chunkPath, commonConfig.getPieceSize());
+                        } catch (IOException ex) {
+                            Logger.getLogger(Peer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } else {
+                        peer.setChunks(new BitSet((int) numSplits));
+                    }
+                GlobalConstants.PEERLIST.put(peer.getPeerID(), peer);
+                System.out.print(peer.getChunks());
+                
+            } else {
+                currentPeer = peer;
+                    if (peer.isHaveFile()) {
+                        peer.getChunks().set(0, new Long(numSplits).intValue(), true);
+                        String chunkPath = currentDir + File.separator + commonConfig.getFileName();
+                        try {
+                            FileSegregation.splitFile(chunkPath, commonConfig.getPieceSize());
+                        } catch (IOException ex) {
+                            Logger.getLogger(Peer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } else {
+                        peer.setChunks(new BitSet((int) numSplits));
                     }
                 }
             }
         }
-        Server TCPserver=new Server(currentPeer);
+        Server TCPserver = new Server(currentPeer);
         TCPserver.start();
-        
+
         scheduler.scheduleAtFixedRate(new ChokeUnchokeHandler(), 3, commonConfig.getUnchokingInterval(), TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(new OptimisticallyUnchokeHandler(), 3, commonConfig.getOptimisticUnchokingInterval(), TimeUnit.SECONDS);
 
-        iterator=peerInfo.listIterator();
-        while (iterator.hasNext()){
+        iterator = peerInfo.listIterator();
+        while (iterator.hasNext()) {
             PeerInfoConfigObject peer = iterator.next();
-            if(peer.getPeerID()!=peerID){
+            if (peer.getPeerID() != currentPeerID) {
                 UtilityHandlers.sendTCPRequest(peer);
-            }else{
+            } else {
                 break;
             }
         }
-//        createPeerFolder();
+
     }
 
     // creates the peer folder
     public void createPeerFolder() {
         String currentDir = System.getProperty("user.dir");
-        File f = new File(currentDir + File.separator + "peer_" + peerID);
+        GlobalConstants.chunkDirectory=currentDir + File.separator + "peer_" + currentPeerID;
+        File f = new File(GlobalConstants.chunkDirectory);
         if (!f.exists() && !f.isDirectory()) {
             f.mkdirs();
         }
-        FileSegregation.dir=f.getPath();
+        FileSegregation.dir = f.getPath();
         System.out.print(FileSegregation.dir);
 
     }

@@ -22,6 +22,8 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -48,7 +50,8 @@ public class FileUtility {
         }
 
         List<Path> partFiles = new ArrayList<>();
-        final long sourceSize = Files.size(Paths.get(fileName));
+//        final long sourceSize = Files.size(Paths.get(fileName));
+        final long sourceSize = Peer.commonConfig.getFileSize();
         final long bytesPerSplit = bperSplit;
         final long numSplits = sourceSize / bytesPerSplit;
         final long remainingBytes = sourceSize % bytesPerSplit;
@@ -80,43 +83,23 @@ public class FileUtility {
         partFiles.add(fileName);
     }
 
-    public static void mergeFiles(File[] files, String mergedFilePath) {
-        
-        File mergedFile = new File(mergedFilePath + File.separator + GlobalConstants.commonConfig.getFileName());
-        FileWriter fstream = null;
-        BufferedWriter out = null;
+    public static void mergeFilesByByte(List<byte[]> bytesList) {
+        FileOutputStream fos = null;
         try {
-            fstream = new FileWriter(mergedFile, true);
-            out = new BufferedWriter(fstream);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-
-        for (File f : files) {
-            System.out.println("merging: " + f.getName());
-            FileInputStream fis;
+            fos = new FileOutputStream(GlobalConstants.chunkDirectory + File.separator + GlobalConstants.commonConfig.getFileName());
+            for (byte[] data : bytesList) {
+                fos.write(data);
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
             try {
-                fis = new FileInputStream(f);
-                BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
-                String aLine;
-                while ((aLine = in.readLine()) != null) {
-                    out.write(aLine);
-                    out.newLine();
-                }
-
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                fos.close();
+            } catch (IOException ex) {
+                Logger.getLogger(FileUtility.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
-        try {
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
-
 }

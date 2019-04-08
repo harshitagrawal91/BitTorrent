@@ -6,7 +6,6 @@
 package bittorrent;
 
 import bittorrent.beans.ActualMessage;
-import bittorrent.beans.HandshakeObject;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import bittorrent.beans.GlobalConstants;
 import java.io.ByteArrayOutputStream;
@@ -17,7 +16,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -128,7 +129,7 @@ public class MessageHandler extends Thread {
     }
 
     private synchronized void sendRequestMessage() {
-        System.out.println(GlobalConstants.PEERLIST.get(peerId).getState());
+//        System.out.println(GlobalConstants.PEERLIST.get(peerId).getState());
         if (GlobalConstants.PEERLIST.get(peerId).isUnchockedForCurrentPeers()) {
             BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
             currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
@@ -206,10 +207,16 @@ public class MessageHandler extends Thread {
         currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
         if (currentPeerChunk.isEmpty()) {
             File[] chunksFiles = new File[(int) GlobalConstants.chunkCount];
+            List<byte[]> bytesList = new ArrayList<byte[]>();
             for (int i = 0; i < GlobalConstants.chunkCount; i++) {
                 chunksFiles[i] = new File(GlobalConstants.chunkDirectory + File.separator + i + ".splitPart");
+                try {
+                    bytesList.add(Files.readAllBytes(chunksFiles[i].toPath()));
+                } catch (IOException ex) {
+                    Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }   
             }
-            FileUtility.mergeFiles(chunksFiles, GlobalConstants.chunkDirectory);
+             FileUtility.mergeFilesByByte(bytesList);
         }
         sendRequestMessage();
     }

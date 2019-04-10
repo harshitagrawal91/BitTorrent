@@ -8,6 +8,7 @@ package bittorrent;
 import bittorrent.beans.ActualMessage;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import bittorrent.beans.GlobalConstants;
+import bittorrent.beans.PeerInfoConfigObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,6 +57,8 @@ public class MessageHandler extends Thread {
                     handleRequestMessage(message);
                 } else if (message.getMessageType() == GlobalConstants.messageType.PIECE.getValue()) {
                     handlePiecetMessage(message);
+                } else if (message.getMessageType() == GlobalConstants.messageType.HAVE.getValue()) {
+                    handleHaveMessage(message);
                 }
 
             } else {
@@ -146,6 +149,37 @@ public class MessageHandler extends Thread {
             }
         }
     }
+    
+    private void sendHaveMessage(byte[] chunkIdArr) {
+        for (int pid : GlobalConstants.PEERLIST.keySet()) {
+           PeerInfoConfigObject peer = GlobalConstants.PEERLIST.get(pid);
+           if (peer != null) {
+               ActualMessage haveMsg = new ActualMessage();
+                haveMsg.setLength(5);
+                haveMsg.setMessageType(GlobalConstants.messageType.HAVE.getValue());
+                haveMsg.setMessage(chunkIdArr.clone());
+                if (peer.getPeerHandler() != null)
+                    peer.getPeerHandler().sendMessage(haveMsg);
+                else
+                    log.info("peer handler for " + pid + "is null");
+
+           } else {
+               log.info("peer" + pid + "is null");
+           }
+        }
+    }
+    
+    private void handleHaveMessage(ActualMessage message) {
+        int chunkId = ByteBuffer.wrap(message.getMessage()).getInt();
+        log.info("received HAVE message from peer: " + peerId + "for chunk: " + chunkId + GlobalConstants.PEERLIST.get(peerId).getChunks());
+        GlobalConstants.PEERLIST.get(peerId).getChunks().set(chunkId);
+        if (!Peer.currentPeer.getChunks().get(chunkId)) {
+            ActualMessage interestedMsg = new ActualMessage();
+            interestedMsg.setLength(1);
+            interestedMsg.setMessageType(GlobalConstants.messageType.INTERESTED.getValue());
+            GlobalConstants.PEERLIST.get(peerId).getPeerHandler().sendMessage(interestedMsg);
+        }
+    }
 
     private void handleUnchokeMessage(ActualMessage message) {
         log.info("received unchoke message from" + Integer.toString(peerId) + ",current peer port: " + Peer.currentPeer.getHostPort());
@@ -198,6 +232,9 @@ public class MessageHandler extends Thread {
             Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         Peer.currentPeer.getChunks().set(chunkId);
+        
+        sendHaveMessage(chunkIdArr);
+        
         BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
         currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
         if (currentPeerChunk.isEmpty()) {

@@ -90,20 +90,15 @@ public class MessageHandler extends Thread {
             GlobalConstants.PEERLIST.get(peerId).getPeerHandler().sendMessage(responseBitfieldMessage);
         }
 
-        // TODO: find out if you don't have a chunk which your peer has
-        // THIS IS A BUG, change
         // a:  0011
         // b:  1011
-        // a & b == a means a is interested in b (provided a is not equal to b)
-        BitSet a = Peer.currentPeer.getChunks();
-        BitSet b = GlobalConstants.PEERLIST.get(peerId).getChunks();
+        // not a and b: 1100 and 1011 => 1000 => a is interested in b (in the first chunk)
+        BitSet currentChunks = (BitSet) Peer.currentPeer.getChunks().clone();
+        currentChunks.flip(0, (int) GlobalConstants.chunkCount);
+        BitSet remoteChunks = (BitSet) GlobalConstants.PEERLIST.get(peerId).getChunks().clone();
+        currentChunks.and(remoteChunks);
 
-        Boolean interested = false;
-
-        if (!a.equals(b)) {
-            a.and(b);
-            interested = a.equals(Peer.currentPeer.getChunks());
-        }
+        Boolean interested = !currentChunks.isEmpty();
 
         ActualMessage interestedOrNotMessage = new ActualMessage();
         interestedOrNotMessage.setLength(1);

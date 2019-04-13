@@ -8,6 +8,7 @@ package bittorrent;
 import bittorrent.beans.ActualMessage;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import bittorrent.beans.GlobalConstants;
+import bittorrent.beans.PeerInfoConfigObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,6 +57,8 @@ public class MessageHandler extends Thread {
                     handleRequestMessage(message);
                 } else if (message.getMessageType() == GlobalConstants.messageType.PIECE.getValue()) {
                     handlePiecetMessage(message);
+                } else if (message.getMessageType() == GlobalConstants.messageType.HAVE.getValue()) {
+                    handleHaveMessage(message);
                 }
 
             } else {
@@ -90,20 +93,15 @@ public class MessageHandler extends Thread {
             GlobalConstants.PEERLIST.get(peerId).getPeerHandler().sendMessage(responseBitfieldMessage);
         }
 
-        // TODO: find out if you don't have a chunk which your peer has
-        // THIS IS A BUG, change
         // a:  0011
         // b:  1011
-        // a & b == a means a is interested in b (provided a is not equal to b)
-        BitSet a = Peer.currentPeer.getChunks();
-        BitSet b = GlobalConstants.PEERLIST.get(peerId).getChunks();
+        // not a and b: 1100 and 1011 => 1000 => a is interested in b (in the first chunk)
+        BitSet currentChunks = (BitSet) Peer.currentPeer.getChunks().clone();
+        currentChunks.flip(0, (int) GlobalConstants.chunkCount);
+        BitSet remoteChunks = (BitSet) GlobalConstants.PEERLIST.get(peerId).getChunks().clone();
+        currentChunks.and(remoteChunks);
 
-        Boolean interested = false;
-
-        if (!a.equals(b)) {
-            a.and(b);
-            interested = a.equals(Peer.currentPeer.getChunks());
-        }
+        Boolean interested = !currentChunks.isEmpty();
 
         ActualMessage interestedOrNotMessage = new ActualMessage();
         interestedOrNotMessage.setLength(1);
@@ -149,6 +147,37 @@ public class MessageHandler extends Thread {
                     break;
                 }
             }
+        }
+    }
+    
+    private void sendHaveMessage(byte[] chunkIdArr) {
+        for (int pid : GlobalConstants.PEERLIST.keySet()) {
+           PeerInfoConfigObject peer = GlobalConstants.PEERLIST.get(pid);
+           if (peer != null) {
+               ActualMessage haveMsg = new ActualMessage();
+                haveMsg.setLength(5);
+                haveMsg.setMessageType(GlobalConstants.messageType.HAVE.getValue());
+                haveMsg.setMessage(chunkIdArr.clone());
+                if (peer.getPeerHandler() != null)
+                    peer.getPeerHandler().sendMessage(haveMsg);
+                else
+                    log.info("peer handler for " + pid + "is null");
+
+           } else {
+               log.info("peer" + pid + "is null");
+           }
+        }
+    }
+    
+    private void handleHaveMessage(ActualMessage message) {
+        int chunkId = ByteBuffer.wrap(message.getMessage()).getInt();
+        log.info("received HAVE message from peer: " + peerId + "for chunk: " + chunkId + GlobalConstants.PEERLIST.get(peerId).getChunks());
+        GlobalConstants.PEERLIST.get(peerId).getChunks().set(chunkId);
+        if (!Peer.currentPeer.getChunks().get(chunkId)) {
+            ActualMessage interestedMsg = new ActualMessage();
+            interestedMsg.setLength(1);
+            interestedMsg.setMessageType(GlobalConstants.messageType.INTERESTED.getValue());
+            GlobalConstants.PEERLIST.get(peerId).getPeerHandler().sendMessage(interestedMsg);
         }
     }
 
@@ -203,6 +232,9 @@ public class MessageHandler extends Thread {
             Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         Peer.currentPeer.getChunks().set(chunkId);
+        
+        sendHaveMessage(chunkIdArr);
+        
         BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
         currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
         if (currentPeerChunk.isEmpty()) {

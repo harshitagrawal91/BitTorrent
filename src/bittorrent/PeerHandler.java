@@ -41,7 +41,7 @@ public class PeerHandler extends Thread {
     public void run() {
         try {
             nextExpectedMessage = GlobalConstants.HANDSHAKE;
-            log.info("peer" + Peer.currentPeerID + "_input and output stream created");
+            log.info("peer " + Peer.currentPeerID + "_input and output stream created");
             boolean check = false;
             try {
                 while (true) {
@@ -52,7 +52,7 @@ public class PeerHandler extends Thread {
                                 if (GlobalConstants.PEERLIST.containsKey(message.getPeerID())) {
                                     GlobalConstants.PEERLIST.get(message.getPeerID()).setPeerHandler(this);
                                     handlerForPeer=message.getPeerID();  
-                                    log.info(" peer" + Peer.currentPeerID + "is connected with peer" + message.getPeerID());
+                                    log.info("peer " + Peer.currentPeerID + " is connected with peer " + message.getPeerID());
                                     if(GlobalConstants.expectedMessage.get(message.getPeerID())==GlobalConstants.HANDSHAKE){
                                     HandshakeObject handshake = new HandshakeObject();
                                     handshake.setPeerID(Peer.currentPeerID);

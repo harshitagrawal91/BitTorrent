@@ -12,12 +12,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
 
 /**
  *
  * @author harsh
  */
 public class OptimisticallyUnchokeHandler implements Runnable{
+    Logger log;
     public void run(){
          ConcurrentHashMap <Integer,PeerInfoConfigObject> interestedPeers=GlobalConstants.interestedPeers;
           ArrayList<PeerInfoConfigObject> sortedInterestedPeer=new ArrayList();
@@ -26,10 +28,14 @@ public class OptimisticallyUnchokeHandler implements Runnable{
                  PeerInfoConfigObject temp=interestedPeers.get(peerid);
                 if(temp.isOptimisticallyUnchoke()==true ){
                     temp.setState(GlobalConstants.messageType.CHOKE.getValue());
+                    log.info("Peer " + Peer.currentPeer.getHostPort() + " has the optimistically unchoked neighbor " + Integer.toString(peerid));
                 }
+                                
                 sortedInterestedPeer.add(interestedPeers.get(peerid));
             }
            
+            log.info("Peer " + Peer.currentPeer.getHostPort() + " has the preferred neighbors " + sortedInterestedPeer);
+            
             Collections.sort(sortedInterestedPeer, (a,b) -> (int)(b.getDownloadSpeed() - a.getDownloadSpeed()));
             int k = GlobalConstants.commonConfig.getNumberOfPreferedNeighbour();
             if (sortedInterestedPeer.size() >  k) {

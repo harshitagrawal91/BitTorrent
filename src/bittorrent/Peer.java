@@ -93,6 +93,7 @@ public class Peer {
 
         scheduler.scheduleAtFixedRate(new ChokeUnchokeHandler(), 3, commonConfig.getUnchokingInterval(), TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(new OptimisticallyUnchokeHandler(), 3, commonConfig.getOptimisticUnchokingInterval(), TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new Terminator(), 3, 10, TimeUnit.SECONDS);
 
         iterator = peerInfo.listIterator();
         while (iterator.hasNext()) {

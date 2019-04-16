@@ -30,6 +30,7 @@ public class PeerHandler extends Thread {
     private MessageHandler messageHandler=null;
     public String nextExpectedMessage;
     Logger log;
+    private volatile static boolean exit=false;
 
     public PeerHandler(Socket socket, ObjectOutputStream o, ObjectInputStream i) {
         this.socket = socket;
@@ -44,8 +45,10 @@ public class PeerHandler extends Thread {
             log.info("peer " + Peer.currentPeerID + "_input and output stream created");
             boolean check = false;
             try {
-                while (true) {
+                while (!exit) {
+                      if (in == null) continue;
                       Object obj=in.readObject();
+                      if (obj == null) continue;
                             if(obj instanceof HandshakeObject){
                            HandshakeObject message = (HandshakeObject) obj;
                             if (message!=null && message.getHeader().equals(GlobalConstants.HANDSHAKEHEADER)) {
@@ -94,7 +97,7 @@ public class PeerHandler extends Thread {
                 return;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         } finally {
             try {
                 // closing resources 
@@ -102,20 +105,26 @@ public class PeerHandler extends Thread {
                 this.out.close();
 
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
 
+    }
+    
+    public void stopPeer() {
+        exit = true;
     }
 
     // method to send message
     public void sendMessage(Object msg) {
         try {
-            out.writeObject(msg);
-            out.flush();
+            if (out != null) {
+                out.writeObject(msg);
+                out.flush();
+            }
 //			System.out.println("Send message: " + msg + " to Client " + no);
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+//            ioException.printStackTrace();
         }
     }
 

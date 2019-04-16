@@ -6,6 +6,7 @@
 package bittorrent;
 import bittorrent.beans.GlobalConstants;
 import bittorrent.beans.PeerInfoConfigObject;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -13,8 +14,8 @@ import bittorrent.beans.PeerInfoConfigObject;
  */
 public class Terminator implements Runnable{
     public void run() {
-        while (true) {
-            if (Peer.currentPeer.getChunks().cardinality() != GlobalConstants.chunkCount) continue;
+        try {
+            if (Peer.currentPeer.getChunks().cardinality() != GlobalConstants.chunkCount) return;
             int count = 0;
             GlobalConstants.log.info("terminator running");
             GlobalConstants.log.info("chunkCount:" + GlobalConstants.chunkCount );
@@ -27,8 +28,16 @@ public class Terminator implements Runnable{
             GlobalConstants.log.info("total count" + GlobalConstants.PEERLIST.keySet().size());
 
             if (count == GlobalConstants.PEERLIST.keySet().size()) {
+                Peer.scheduler.shutdown();
+                Peer.scheduler.awaitTermination(5, TimeUnit.SECONDS);
+                for (int pid : GlobalConstants.PEERLIST.keySet()) {
+                    PeerInfoConfigObject peer = GlobalConstants.PEERLIST.get(pid);
+                    peer.getPeerHandler().stopPeer();
+                }
                 System.exit(0);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

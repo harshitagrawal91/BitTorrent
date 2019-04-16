@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class GlobalConstants {
     public static HashMap <Integer,String> expectedMessage=new HashMap<>();
-    public static HashMap <Integer,PeerInfoConfigObject> PEERLIST=new HashMap<>();
+    public static ConcurrentHashMap <Integer,PeerInfoConfigObject> PEERLIST=new ConcurrentHashMap<>();
     public static final String HANDSHAKE="handshake"; 
     public static final String HANDSHAKEHEADER="P2PFILESHARINGPROJ";
     public static final String BITFIELD="bitfield";

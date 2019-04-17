@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
- * @author harsh
+ *
  */
 public class ChokeUnchokeHandler implements Runnable {
 
@@ -51,6 +51,5 @@ public class ChokeUnchokeHandler implements Runnable {
             }
         }
 
-//        System.out.print("choke unchoke");
     }
 }

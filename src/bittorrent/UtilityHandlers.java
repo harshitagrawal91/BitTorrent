@@ -28,8 +28,8 @@ public class UtilityHandlers {
 
     /*
 
-    This method details the logging format, creates a separate log file for
-    a specific peer in it's designated file location.
+     This method details the logging format, creates a separate log file for
+     a specific peer in it's designated file location.
 
      */
 
@@ -39,13 +39,12 @@ public class UtilityHandlers {
         Logger logger = Logger.getLogger("peer_" + peerID);
         FileHandler fh;
 
-        String path = currentDir +File.separator+ "log_peer_" + peerID + ".log";
+        String path = currentDir + File.separator + "log_peer_" + peerID + ".log";
         try {
             fh = new FileHandler(path, true);
             logger.addHandler(fh);
             SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
-            logger.info("log initialised");
         } catch (SecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -53,29 +52,29 @@ public class UtilityHandlers {
         }
         return logger;
     }
-    public static boolean sendTCPRequest(PeerInfoConfigObject remotePeer){
+
+    public static boolean sendTCPRequest(PeerInfoConfigObject remotePeer) {
 
         /*
 
-        This method initiates a new socket by taking in the host name and port no.
-        It establishes a handshake after it's creation, with each of the previously
-        existing peers
+         This method initiates a new socket by taking in the host name and port no.
+         It establishes a handshake after it's creation, with each of the previously
+         existing peers
 
-        */
-
-        try{
-        Socket socket = new Socket(remotePeer.getHostName(), remotePeer.getHostPort());
+         */
+        try {
+            Socket socket = new Socket(remotePeer.getHostName(), remotePeer.getHostPort());
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-	     out.flush();
-             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-             HandshakeObject handshake=new HandshakeObject();
-             handshake.setPeerID(Peer.currentPeerID);
-             out.writeObject(handshake);
-	     out.flush();
-             GlobalConstants.expectedMessage.put(remotePeer.getPeerID(), GlobalConstants.BITFIELD);
-             new PeerHandler(socket,out,in).start();
-             
-        }catch(IOException e){
+            out.flush();
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            HandshakeObject handshake = new HandshakeObject();
+            handshake.setPeerID(Peer.currentPeerID);
+            out.writeObject(handshake);
+            out.flush();
+            GlobalConstants.expectedMessage.put(remotePeer.getPeerID(), GlobalConstants.BITFIELD);
+            new PeerHandler(socket, out, in).start();
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return true;

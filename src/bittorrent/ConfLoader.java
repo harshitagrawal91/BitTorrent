@@ -48,14 +48,11 @@ public class ConfLoader {
                         conf.setPieceSize(Long.parseLong(s[1]));
                         break;
                     default:
-                        System.out.println("Invalig Configuration File");
                         return null;
                 }
             }
         } catch (FileNotFoundException fe) {
-            System.out.print("common config file not found" + fe);
         } catch (IOException e) {
-            System.out.print("IO exception while reading common config" + e);
         }
         return conf;
     }
@@ -76,14 +73,12 @@ public class ConfLoader {
                 if (Integer.parseInt(s[3]) == 1) {
                     peer.setHaveFile(true);
                 } else if (Integer.parseInt(s[3]) == 0) {
-                    peer.setHaveFile(false); 
+                    peer.setHaveFile(false);
                 }
                 peerarr.add(peer);
             }
         } catch (FileNotFoundException fe) {
-            System.out.print("peerinfo config file not found" + fe);
         } catch (IOException e) {
-            System.out.print("IO exception while reading peerinfo config" + e);
         }
         return peerarr;
     }

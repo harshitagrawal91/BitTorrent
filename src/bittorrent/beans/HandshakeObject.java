@@ -13,8 +13,7 @@ import java.util.BitSet;
  *
  *
  * This file provides implementation details for the handshake/orientation
- * between interating peers.
- * It lists out the following properties -
+ * between interating peers. It lists out the following properties -
  *
  * header - a pre-set header, that reads - "P2PFILESHARINGPROJ"
  *
@@ -22,13 +21,14 @@ import java.util.BitSet;
  *
  * peerID - the ID of the peer participating in handshake
  *
- * The class contains getter, setter methods that assign and fetch values for each of these
- * properties respectively.
+ * The class contains getter, setter methods that assign and fetch values for
+ * each of these properties respectively.
  *
  */
-public class HandshakeObject implements Serializable{
-    final String header="P2PFILESHARINGPROJ";
-    BitSet zeroBits=new BitSet(80);
+public class HandshakeObject implements Serializable {
+
+    final String header = "P2PFILESHARINGPROJ";
+    BitSet zeroBits = new BitSet(80);
     int peerID;
 
     // get zero bits
@@ -55,5 +55,5 @@ public class HandshakeObject implements Serializable{
     public String getHeader() {
         return header;
     }
-    
+
 }

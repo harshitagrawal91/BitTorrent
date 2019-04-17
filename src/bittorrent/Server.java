@@ -19,8 +19,8 @@ import java.util.logging.Logger;
 
 /**
  *
- * 
- * 
+ *
+ *
  *
  */
 public class Server extends Thread {
@@ -30,9 +30,10 @@ public class Server extends Thread {
     Logger log;
 
     /**
-     * 
-     * 
-     * sets logging and identification details for each instance of the Server class
+     *
+     *
+     * sets logging and identification details for each instance of the Server
+     * class
      *
      */
     public Server(PeerInfoConfigObject serverPeer) {
@@ -41,25 +42,24 @@ public class Server extends Thread {
     }
 
     /**
-     * 
-     * 
-     * Creates a new instance of the ServerSocket class and logs this event providing the
-     * peer ID and port number of the created object.
-     * 
+     *
+     *
+     * Creates a new instance of the ServerSocket class and logs this event
+     * providing the peer ID and port number of the created object.
+     *
      *
      */
     public void run() {
         try {
             listener = new ServerSocket(serverPeer.getHostPort());
-            log.info("Peer " + serverPeer.getPeerID() + "_Server started at port " + serverPeer.getHostPort());
             while (true) {
-                Socket socket=null;
-                socket= listener.accept();
-                if(socket!=null){
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                out.flush();
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                new PeerHandler(socket, out, in).start();
+                Socket socket = null;
+                socket = listener.accept();
+                if (socket != null) {
+                    ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                    out.flush();
+                    ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                    new PeerHandler(socket, out, in).start();
                 }
             }
         } catch (IOException e) {
@@ -67,7 +67,6 @@ public class Server extends Thread {
             try {
                 listener.close();
             } catch (IOException e) {
-              System.out.print(e);
             }
         }
     }

@@ -10,7 +10,7 @@ import java.util.BitSet;
 
 /**
  *
- * 
+ *
  *
  * This file details the info listed inside the PeerInfo.cfg file.
  *
@@ -27,7 +27,8 @@ import java.util.BitSet;
  *
  * fileName - File chosen to exchange as part of bittorrent protocol
  *
- * Additionally, getter setters have been added to fetch, and set values to these properties
+ * Additionally, getter setters have been added to fetch, and set values to
+ * these properties
  *
  *
  */
@@ -51,7 +52,8 @@ public class PeerInfoConfigObject {
     public void setUnchockedForCurrentPeers(boolean unchockedForCurrentPeers) {
         this.unchockedForCurrentPeers = unchockedForCurrentPeers;
     }
-    volatile Byte state=(byte)0;
+    volatile Byte state = (byte) 0;
+
     public boolean isOptimisticallyUnchoke() {
         return optimisticallyUnchoke;
     }
@@ -59,7 +61,6 @@ public class PeerInfoConfigObject {
     public void setOptimisticallyUnchoke(boolean optimisticallyUnchoke) {
         this.optimisticallyUnchoke = optimisticallyUnchoke;
     }
-   
 
     public Byte getState() {
         return state;
@@ -76,7 +77,7 @@ public class PeerInfoConfigObject {
     public void setDownloadSpeed(double downloadSpeed) {
         this.downloadSpeed = downloadSpeed;
     }
-    BitSet chunks=new BitSet(1000);
+    BitSet chunks = new BitSet(1000);
 
     public BitSet getChunks() {
         return chunks;

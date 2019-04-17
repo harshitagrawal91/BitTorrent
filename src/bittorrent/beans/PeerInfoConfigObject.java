@@ -38,10 +38,12 @@ public class PeerInfoConfigObject {
     String hostName;
     int hostPort;
     boolean haveFile;
-    PeerHandler peerHandler = null;
-    float downloadSpeed = 0;
-    boolean optimisticallyUnchoke = false;
-    volatile boolean unchockedForCurrentPeers = false;
+    public PeerHandler peerHandler = null;
+    public double downloadSpeed=0;
+    public long startTime;
+    public long finishTime;
+    boolean optimisticallyUnchoke=false;
+    volatile boolean unchockedForCurrentPeers=false; 
 
     public boolean isUnchockedForCurrentPeers() {
         return unchockedForCurrentPeers;
@@ -68,11 +70,11 @@ public class PeerInfoConfigObject {
         this.state = state;
     }
 
-    public float getDownloadSpeed() {
+    public double getDownloadSpeed() {
         return downloadSpeed;
     }
 
-    public void setDownloadSpeed(float downloadSpeed) {
+    public void setDownloadSpeed(double downloadSpeed) {
         this.downloadSpeed = downloadSpeed;
     }
     BitSet chunks = new BitSet(1000);

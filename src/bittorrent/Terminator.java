@@ -10,22 +10,22 @@ import java.util.concurrent.TimeUnit;
 
 /**
  *
- * @author debdeepbasu
+ *
  */
-public class Terminator implements Runnable{
+public class Terminator implements Runnable {
+
     public void run() {
         try {
-            if (Peer.currentPeer.getChunks().cardinality() != GlobalConstants.chunkCount) return;
+            if (Peer.currentPeer.getChunks().cardinality() != GlobalConstants.chunkCount) {
+                return;
+            }
             int count = 0;
-            GlobalConstants.log.info("terminator running");
-            GlobalConstants.log.info("chunkCount:" + GlobalConstants.chunkCount );
             for (Integer pid : GlobalConstants.PEERLIST.keySet()) {
                 PeerInfoConfigObject peer = GlobalConstants.PEERLIST.get(pid);
-                GlobalConstants.log.info("peer-id: " + pid + " cardinality->" + peer.getChunks().cardinality());
-                if (peer.getChunks().cardinality() == GlobalConstants.chunkCount) count++;
+                if (peer.getChunks().cardinality() == GlobalConstants.chunkCount) {
+                    count++;
+                }
             }
-            GlobalConstants.log.info("terminator count: " + count);
-            GlobalConstants.log.info("total count" + GlobalConstants.PEERLIST.keySet().size());
 
             if (count == GlobalConstants.PEERLIST.keySet().size()) {
                 Peer.scheduler.shutdown();

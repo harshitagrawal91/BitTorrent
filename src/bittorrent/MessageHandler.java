@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author harsh
+ *
  */
 public class MessageHandler extends Thread {
 
@@ -79,8 +79,6 @@ public class MessageHandler extends Thread {
     }
 
     private void handleBitfieldMessage(ActualMessage message) {
-        System.out.print("bitfield message received" + message.getLength());
-        // TODO why do we have to set the peer's bitfield again, even when it was was set during handshake?
         GlobalConstants.PEERLIST.get(peerId).setChunks(BitSet.valueOf(message.getMessage()));
 
         log.info("received bitfield message from peer " + peerId + "--" + GlobalConstants.PEERLIST.get(peerId).getChunks());
@@ -150,26 +148,25 @@ public class MessageHandler extends Thread {
             }
         }
     }
-    
+
     private void sendHaveMessage(byte[] chunkIdArr) {
         for (int pid : GlobalConstants.PEERLIST.keySet()) {
-           PeerInfoConfigObject peer = GlobalConstants.PEERLIST.get(pid);
-           if (peer != null) {
-               ActualMessage haveMsg = new ActualMessage();
+            PeerInfoConfigObject peer = GlobalConstants.PEERLIST.get(pid);
+            if (peer != null) {
+                ActualMessage haveMsg = new ActualMessage();
                 haveMsg.setLength(5);
                 haveMsg.setMessageType(GlobalConstants.messageType.HAVE.getValue());
                 haveMsg.setMessage(chunkIdArr.clone());
-                if (peer.getPeerHandler() != null)
+                if (peer.getPeerHandler() != null) {
                     peer.getPeerHandler().sendMessage(haveMsg);
-                else
-                    log.info("peer handler for " + pid + " is null");
+                } else {
+                }
 
-           } else {
-               log.info("peer " + pid + " is null");
-           }
+            } else {
+            }
         }
     }
-    
+
     private void handleHaveMessage(ActualMessage message) {
         int chunkId = ByteBuffer.wrap(message.getMessage()).getInt();
         log.info("received HAVE message from peer: " + peerId + " for chunk: " + chunkId + GlobalConstants.PEERLIST.get(peerId).getChunks());
@@ -222,7 +219,7 @@ public class MessageHandler extends Thread {
         int chunkId = ByteBuffer.wrap(chunkIdArr).getInt();
 
         log.info("Peer " + Integer.toString(peerId) + " has downloaded the piece " + Integer.toString(chunkId) + " from current peer port: " + Peer.currentPeer.getHostPort()
-        + " now the number of pieces it has is " + (GlobalConstants.chunkCount - Peer.currentPeer.getChunks().cardinality()));
+                + " now the number of pieces it has is " + (GlobalConstants.chunkCount - Peer.currentPeer.getChunks().cardinality()));
         OutputStream os;
         try {
             os = new FileOutputStream(new File(GlobalConstants.chunkDirectory + File.separator + chunkId + ".splitPart"));
@@ -234,9 +231,9 @@ public class MessageHandler extends Thread {
             Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         Peer.currentPeer.getChunks().set(chunkId);
-        
+
         sendHaveMessage(chunkIdArr);
-        
+
         BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
         currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
         if (currentPeerChunk.isEmpty()) {
@@ -248,9 +245,9 @@ public class MessageHandler extends Thread {
                     bytesList.add(Files.readAllBytes(chunksFiles[i].toPath()));
                 } catch (IOException ex) {
                     Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
-                }   
+                }
             }
-             FileUtility.mergeFilesByByte(bytesList);
+            FileUtility.mergeFilesByByte(bytesList);
         }
         sendRequestMessage();
     }

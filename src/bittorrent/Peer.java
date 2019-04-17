@@ -52,28 +52,27 @@ public class Peer {
         peerInfo = confLoader.readPeerInfoConfig();
         ListIterator<PeerInfoConfigObject> iterator = peerInfo.listIterator();
         if (Peer.commonConfig != null) {
-                    long fileSize = Peer.commonConfig.getFileSize();
-                    long pieceSize = Peer.commonConfig.getPieceSize();
-                    long numSplits = fileSize / pieceSize;
-                    long remainingBytes = fileSize % pieceSize;
-                    if (remainingBytes > 0) {
-                        numSplits = numSplits + 1;
-                    }
-                    GlobalConstants.chunkCount = numSplits;
-        while (iterator.hasNext()) {
-            PeerInfoConfigObject peer = iterator.next();
-            if (peer.getPeerID() != currentPeerID) {
-                GlobalConstants.expectedMessage.put(peer.getPeerID(), GlobalConstants.HANDSHAKE);
-                if (peer.isHaveFile()) {
+            long fileSize = Peer.commonConfig.getFileSize();
+            long pieceSize = Peer.commonConfig.getPieceSize();
+            long numSplits = fileSize / pieceSize;
+            long remainingBytes = fileSize % pieceSize;
+            if (remainingBytes > 0) {
+                numSplits = numSplits + 1;
+            }
+            GlobalConstants.chunkCount = numSplits;
+            while (iterator.hasNext()) {
+                PeerInfoConfigObject peer = iterator.next();
+                if (peer.getPeerID() != currentPeerID) {
+                    GlobalConstants.expectedMessage.put(peer.getPeerID(), GlobalConstants.HANDSHAKE);
+                    if (peer.isHaveFile()) {
                         peer.getChunks().set(0, new Long(numSplits).intValue(), true);
                     } else {
                         peer.setChunks(new BitSet((int) numSplits));
                     }
-                GlobalConstants.PEERLIST.put(peer.getPeerID(), peer);
-                System.out.print(peer.getChunks());
-                
-            } else {
-                currentPeer = peer;
+                    GlobalConstants.PEERLIST.put(peer.getPeerID(), peer);
+
+                } else {
+                    currentPeer = peer;
                     if (peer.isHaveFile()) {
                         peer.getChunks().set(0, new Long(numSplits).intValue(), true);
                         String chunkPath = currentDir + File.separator + commonConfig.getFileName();
@@ -110,13 +109,12 @@ public class Peer {
     // creates the peer folder
     public void createPeerFolder() {
         String currentDir = System.getProperty("user.dir");
-        GlobalConstants.chunkDirectory=currentDir + File.separator + "peer_" + currentPeerID;
+        GlobalConstants.chunkDirectory = currentDir + File.separator + "peer_" + currentPeerID;
         File f = new File(GlobalConstants.chunkDirectory);
         if (!f.exists() && !f.isDirectory()) {
             f.mkdirs();
         }
         FileUtility.dir = f.getPath();
-        System.out.print(FileUtility.dir);
 
     }
 }

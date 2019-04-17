@@ -11,8 +11,8 @@ package bittorrent.beans;
  *
  * The file specifies description about the following properties:
  *
- * Number of preferred neighbours - The number of neighbours chosen peer decides to scan
- * for sharing file fragments
+ * Number of preferred neighbours - The number of neighbours chosen peer decides
+ * to scan for sharing file fragments
  *
  * unchoking interval -
  *
@@ -22,7 +22,8 @@ package bittorrent.beans;
  *
  * fileSize - The size of total file in bytes
  *
- * pieceSize - The file fragment chosen to be exchanged between the interacting peers
+ * pieceSize - The file fragment chosen to be exchanged between the interacting
+ * peers
  *
  *
  */
@@ -93,5 +94,5 @@ public class CommonConfigObject {
     public long getPieceSize() {
         return pieceSize;
     }
-    
+
 }

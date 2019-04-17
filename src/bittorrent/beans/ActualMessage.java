@@ -9,8 +9,8 @@ import java.io.Serializable;
 
 /**
  *
- * This file details the below properties regarding the messages exchanged between the peers
- * engaged in file transfer -
+ * This file details the below properties regarding the messages exchanged
+ * between the peers engaged in file transfer -
  *
  * Length - the size of the message
  *
@@ -18,14 +18,15 @@ import java.io.Serializable;
  *
  * message - the actual message body
  *
- * The class contains getter, setter methods that assign and fetch values for each of these
- * properties respectively.
+ * The class contains getter, setter methods that assign and fetch values for
+ * each of these properties respectively.
  *
  */
 public class ActualMessage implements Serializable {
+
     int length;
     byte messageType;
-    byte [] message;
+    byte[] message;
 
     // get the length
     public int getLength() {

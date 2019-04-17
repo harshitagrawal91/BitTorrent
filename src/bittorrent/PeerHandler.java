@@ -27,10 +27,10 @@ public class PeerHandler extends Thread {
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
     private int handlerForPeer;
-    private MessageHandler messageHandler=null;
+    private MessageHandler messageHandler = null;
     public String nextExpectedMessage;
     Logger log;
-    private volatile static boolean exit=false;
+    private volatile static boolean exit = false;
 
     public PeerHandler(Socket socket, ObjectOutputStream o, ObjectInputStream i) {
         this.socket = socket;
@@ -46,54 +46,57 @@ public class PeerHandler extends Thread {
             boolean check = false;
             try {
                 while (!exit) {
-                      if (in == null) continue;
-                      Object obj=in.readObject();
-                      if (obj == null) continue;
-                            if(obj instanceof HandshakeObject){
-                           HandshakeObject message = (HandshakeObject) obj;
-                            if (message!=null && message.getHeader().equals(GlobalConstants.HANDSHAKEHEADER)) {
-                                if (GlobalConstants.PEERLIST.containsKey(message.getPeerID())) {
-                                    GlobalConstants.PEERLIST.get(message.getPeerID()).setPeerHandler(this);
-                                    handlerForPeer=message.getPeerID();  
-                                    log.info("peer " + Peer.currentPeerID + " is connected with peer " + message.getPeerID());
-                                    if(GlobalConstants.expectedMessage.get(message.getPeerID())==GlobalConstants.HANDSHAKE){
+                    if (in == null) {
+                        continue;
+                    }
+                    Object obj = in.readObject();
+                    if (obj == null) {
+                        continue;
+                    }
+                    if (obj instanceof HandshakeObject) {
+                        HandshakeObject message = (HandshakeObject) obj;
+                        if (message != null && message.getHeader().equals(GlobalConstants.HANDSHAKEHEADER)) {
+                            if (GlobalConstants.PEERLIST.containsKey(message.getPeerID())) {
+                                GlobalConstants.PEERLIST.get(message.getPeerID()).setPeerHandler(this);
+                                handlerForPeer = message.getPeerID();
+                                log.info("peer " + Peer.currentPeerID + " is connected with peer " + message.getPeerID());
+                                if (GlobalConstants.expectedMessage.get(message.getPeerID()) == GlobalConstants.HANDSHAKE) {
                                     HandshakeObject handshake = new HandshakeObject();
                                     handshake.setPeerID(Peer.currentPeerID);
                                     out.writeObject(handshake);
                                     out.flush();
-                                    }
-                                    if(!Peer.currentPeer.getChunks().isEmpty()){
-                                        ActualMessage bitfieldMessage=new ActualMessage();
-                                        bitfieldMessage.setMessageType(GlobalConstants.messageType.BITFIELD.getValue());
-                                        bitfieldMessage.setMessage(Peer.currentPeer.getChunks().toByteArray());
-                                        bitfieldMessage.setLength(bitfieldMessage.getMessage().length+1);
-                                        out.writeObject(bitfieldMessage);
-                                        out.flush();
-                                    }
-                                    if(messageHandler==null){
-                                       messageHandler=new MessageHandler(handlerForPeer);
-                                       messageHandler.start();
-                                    }
-                                } else {
-                                    check = true;
-                                    break;
                                 }
-                            } 
-                            }else if(obj instanceof ActualMessage){
-                                messageHandler.messageQueue.add((ActualMessage) obj);
-                                if(messageHandler.getState().equals(Thread.State.WAITING))
-                                    synchronized(messageHandler){
-                                messageHandler.notify();
-                                    }
+                                if (!Peer.currentPeer.getChunks().isEmpty()) {
+                                    ActualMessage bitfieldMessage = new ActualMessage();
+                                    bitfieldMessage.setMessageType(GlobalConstants.messageType.BITFIELD.getValue());
+                                    bitfieldMessage.setMessage(Peer.currentPeer.getChunks().toByteArray());
+                                    bitfieldMessage.setLength(bitfieldMessage.getMessage().length + 1);
+                                    out.writeObject(bitfieldMessage);
+                                    out.flush();
+                                }
+                                if (messageHandler == null) {
+                                    messageHandler = new MessageHandler(handlerForPeer);
+                                    messageHandler.start();
+                                }
+                            } else {
+                                check = true;
+                                break;
                             }
+                        }
+                    } else if (obj instanceof ActualMessage) {
+                        messageHandler.messageQueue.add((ActualMessage) obj);
+                        if (messageHandler.getState().equals(Thread.State.WAITING)) {
+                            synchronized (messageHandler) {
+                                messageHandler.notify();
+                            }
+                        }
+                    }
                     if (check == true) {
                         break;
                     }
                 }
             } catch (ClassNotFoundException classnot) {
-                log.info("Data received in unknown format");
-            }catch(SocketException s){
-                log.info("connection lost for peer_"+handlerForPeer);
+            } catch (SocketException s) {
                 return;
             }
         } catch (IOException e) {
@@ -110,7 +113,7 @@ public class PeerHandler extends Thread {
         }
 
     }
-    
+
     public void stopPeer() {
         exit = true;
     }

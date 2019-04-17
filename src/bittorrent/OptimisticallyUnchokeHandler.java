@@ -16,37 +16,39 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author harsh
+ *
  */
-public class OptimisticallyUnchokeHandler implements Runnable{
+public class OptimisticallyUnchokeHandler implements Runnable {
+
     Logger log;
-    public void run(){
-         ConcurrentHashMap <Integer,PeerInfoConfigObject> interestedPeers=GlobalConstants.interestedPeers;
-          ArrayList<PeerInfoConfigObject> sortedInterestedPeer=new ArrayList();
-        if(!interestedPeers.isEmpty()){
-            for(int peerid:interestedPeers.keySet()){
-                 PeerInfoConfigObject temp=interestedPeers.get(peerid);
-                if(temp.isOptimisticallyUnchoke()==true ){
+
+    public void run() {
+        ConcurrentHashMap<Integer, PeerInfoConfigObject> interestedPeers = GlobalConstants.interestedPeers;
+        ArrayList<PeerInfoConfigObject> sortedInterestedPeer = new ArrayList();
+        if (!interestedPeers.isEmpty()) {
+            for (int peerid : interestedPeers.keySet()) {
+                PeerInfoConfigObject temp = interestedPeers.get(peerid);
+                if (temp.isOptimisticallyUnchoke() == true) {
                     temp.setState(GlobalConstants.messageType.CHOKE.getValue());
                     log.info("Peer " + Peer.currentPeer.getHostPort() + " has the optimistically unchoked neighbor " + Integer.toString(peerid));
                 }
-                                
+
                 sortedInterestedPeer.add(interestedPeers.get(peerid));
             }
-           
+
             log.info("Peer " + Peer.currentPeer.getHostPort() + " has the preferred neighbors " + sortedInterestedPeer);
-            
-            Collections.sort(sortedInterestedPeer, (a,b) -> (int)(b.getDownloadSpeed() - a.getDownloadSpeed()));
+
+            Collections.sort(sortedInterestedPeer, (a, b) -> (int) (b.getDownloadSpeed() - a.getDownloadSpeed()));
             int k = GlobalConstants.commonConfig.getNumberOfPreferedNeighbour();
-            if (sortedInterestedPeer.size() >  k) {
+            if (sortedInterestedPeer.size() > k) {
                 int randomInd;
                 PeerInfoConfigObject randomPeer;
-                while(true){
-                 randomInd = ThreadLocalRandom.current().nextInt(k, sortedInterestedPeer.size());
-                 randomPeer = sortedInterestedPeer.get(randomInd);
-                if(randomPeer.getState()!=GlobalConstants.messageType.UNCHOKE.getValue()){
-                    break;
-                }
+                while (true) {
+                    randomInd = ThreadLocalRandom.current().nextInt(k, sortedInterestedPeer.size());
+                    randomPeer = sortedInterestedPeer.get(randomInd);
+                    if (randomPeer.getState() != GlobalConstants.messageType.UNCHOKE.getValue()) {
+                        break;
+                    }
                 }
                 if (sortedInterestedPeer.size() >= randomInd + 1) {
                     ActualMessage unchokeMessage = new ActualMessage();
@@ -57,5 +59,5 @@ public class OptimisticallyUnchokeHandler implements Runnable{
             }
         }
     }
-    
+
 }

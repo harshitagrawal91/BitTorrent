@@ -10,7 +10,7 @@ import java.util.BitSet;
 
 /**
  *
- * 
+ *
  *
  * This file details the info listed inside the PeerInfo.cfg file.
  *
@@ -27,7 +27,8 @@ import java.util.BitSet;
  *
  * fileName - File chosen to exchange as part of bittorrent protocol
  *
- * Additionally, getter setters have been added to fetch, and set values to these properties
+ * Additionally, getter setters have been added to fetch, and set values to
+ * these properties
  *
  *
  */
@@ -38,9 +39,9 @@ public class PeerInfoConfigObject {
     int hostPort;
     boolean haveFile;
     PeerHandler peerHandler = null;
-    float downloadSpeed=0;
-    boolean optimisticallyUnchoke=false;
-    volatile boolean unchockedForCurrentPeers=false; 
+    float downloadSpeed = 0;
+    boolean optimisticallyUnchoke = false;
+    volatile boolean unchockedForCurrentPeers = false;
 
     public boolean isUnchockedForCurrentPeers() {
         return unchockedForCurrentPeers;
@@ -49,7 +50,8 @@ public class PeerInfoConfigObject {
     public void setUnchockedForCurrentPeers(boolean unchockedForCurrentPeers) {
         this.unchockedForCurrentPeers = unchockedForCurrentPeers;
     }
-    volatile Byte state=(byte)0;
+    volatile Byte state = (byte) 0;
+
     public boolean isOptimisticallyUnchoke() {
         return optimisticallyUnchoke;
     }
@@ -57,7 +59,6 @@ public class PeerInfoConfigObject {
     public void setOptimisticallyUnchoke(boolean optimisticallyUnchoke) {
         this.optimisticallyUnchoke = optimisticallyUnchoke;
     }
-   
 
     public Byte getState() {
         return state;
@@ -74,7 +75,7 @@ public class PeerInfoConfigObject {
     public void setDownloadSpeed(float downloadSpeed) {
         this.downloadSpeed = downloadSpeed;
     }
-    BitSet chunks=new BitSet(1000);
+    BitSet chunks = new BitSet(1000);
 
     public BitSet getChunks() {
         return chunks;

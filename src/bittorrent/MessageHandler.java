@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -130,6 +131,7 @@ public class MessageHandler extends Thread {
     private synchronized void sendRequestMessage() {
 //        System.out.println(GlobalConstants.PEERLIST.get(peerId).getState());
         if (GlobalConstants.PEERLIST.get(peerId).isUnchockedForCurrentPeers()) {
+            GlobalConstants.PEERLIST.get(peerId).startTime = System.nanoTime();
             BitSet currentPeerChunk = (BitSet) Peer.currentPeer.getChunks().clone();
             currentPeerChunk.flip(0, (int) GlobalConstants.chunkCount);
             BitSet remotePeerChunk = (BitSet) GlobalConstants.PEERLIST.get(peerId).getChunks().clone();
@@ -209,9 +211,20 @@ public class MessageHandler extends Thread {
     }
 
     public void handlePiecetMessage(ActualMessage message) {
+        
         byte[] chunk = message.getMessage();
         byte[] chunkIdArr = new byte[4];
         byte[] fileChunk = new byte[chunk.length - 4];
+        GlobalConstants.PEERLIST.get(peerId).finishTime = System.nanoTime();
+        
+        long diff = GlobalConstants.PEERLIST.get(peerId).finishTime - GlobalConstants.PEERLIST.get(peerId).startTime;
+        double elapsed = TimeUnit.MILLISECONDS.convert(diff,TimeUnit.NANOSECONDS) / 1000.0;
+        double downloadRate = 0;
+        if(elapsed != 0)
+        {
+            downloadRate = message.getLength() / elapsed;
+        }
+        GlobalConstants.PEERLIST.get(peerId).downloadSpeed = downloadRate;
         for (int i = 0; i < chunk.length; i++) {
             if (i < 4) {
                 chunkIdArr[i] = chunk[i];

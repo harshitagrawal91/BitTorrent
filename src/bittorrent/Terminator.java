@@ -33,6 +33,7 @@ public class Terminator implements Runnable{
                 for (int pid : GlobalConstants.PEERLIST.keySet()) {
                     PeerInfoConfigObject peer = GlobalConstants.PEERLIST.get(pid);
                     peer.getPeerHandler().stopPeer();
+                    peer.peerHandler = null;
                 }
                 System.exit(0);
             }

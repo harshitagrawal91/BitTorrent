@@ -52,7 +52,6 @@ public class Server extends Thread {
     public void run() {
         try {
             listener = new ServerSocket(serverPeer.getHostPort());
-            log.info("Peer " + serverPeer.getPeerID() + "_Server started at port " + serverPeer.getHostPort());
             while (true) {
                 Socket socket = null;
                 socket = listener.accept();

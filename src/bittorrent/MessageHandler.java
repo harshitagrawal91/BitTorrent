@@ -74,14 +74,12 @@ public class MessageHandler extends Thread {
     }
 
     private void handleChokeMessage(ActualMessage message) {
-        log.info("received choke message from " + Integer.toString(peerId) + ", current peer port: " + Peer.currentPeer.getHostPort());
+        log.info("Peer " +Peer.currentPeerID+" is choked by " + Integer.toString(peerId));
         GlobalConstants.PEERLIST.get(peerId).setUnchockedForCurrentPeers(false);
     }
 
     private void handleBitfieldMessage(ActualMessage message) {
         GlobalConstants.PEERLIST.get(peerId).setChunks(BitSet.valueOf(message.getMessage()));
-
-        log.info("received bitfield message from peer " + peerId + "--" + GlobalConstants.PEERLIST.get(peerId).getChunks());
 
         // send currentPeer's bitfield to peer if it's not empty
         if (!Peer.currentPeer.getChunks().isEmpty()) {
@@ -118,11 +116,11 @@ public class MessageHandler extends Thread {
     private void handleInterestedMessage(ActualMessage message) {
 
         GlobalConstants.interestedPeers.put(peerId, GlobalConstants.PEERLIST.get(peerId));
-        log.info("received interested message from " + Integer.toString(peerId) + ", current peer port: " + Peer.currentPeer.getHostPort());
+        log.info("Peer "+ Peer.currentPeerID +" received the 'interested' message from " + Integer.toString(peerId));
     }
 
     private void handleNotInterestedMessage(ActualMessage message) {
-        log.info("received not interested message from " + Integer.toString(peerId) + ", current peer port: " + Peer.currentPeer.getHostPort());
+        log.info("Peer "+ Peer.currentPeerID +" received the 'not interested' message from " + Integer.toString(peerId));
     }
 
     private synchronized void sendRequestMessage() {
@@ -169,7 +167,7 @@ public class MessageHandler extends Thread {
 
     private void handleHaveMessage(ActualMessage message) {
         int chunkId = ByteBuffer.wrap(message.getMessage()).getInt();
-        log.info("received HAVE message from peer: " + peerId + " for chunk: " + chunkId + GlobalConstants.PEERLIST.get(peerId).getChunks());
+        log.info("Peer " + Peer.currentPeerID+ " received the 'have' message from peer " + Integer.toString(peerId) + " for the piece " + chunkId);
         GlobalConstants.PEERLIST.get(peerId).getChunks().set(chunkId);
         if (!Peer.currentPeer.getChunks().get(chunkId)) {
             ActualMessage interestedMsg = new ActualMessage();
@@ -180,7 +178,7 @@ public class MessageHandler extends Thread {
     }
 
     private void handleUnchokeMessage(ActualMessage message) {
-        log.info("received unchoke message from " + Integer.toString(peerId) + ", current peer port: " + Peer.currentPeer.getHostPort());
+        log.info("Peer "+Peer.currentPeerID + " is unchoked by " + Integer.toString(peerId));
         GlobalConstants.PEERLIST.get(peerId).setUnchockedForCurrentPeers(true);
         sendRequestMessage();
 
@@ -188,7 +186,6 @@ public class MessageHandler extends Thread {
 
     private void handleRequestMessage(ActualMessage message) {
         int chunkid = ByteBuffer.wrap(message.getMessage()).getInt();
-        log.info("received Request message from " + Integer.toString(peerId) + ", current peer port: " + Peer.currentPeer.getHostPort() + " for bit " + ByteBuffer.wrap(message.getMessage()).getInt());
         try {
             byte[] fileChunk = Files.readAllBytes(new File(GlobalConstants.chunkDirectory + File.separator + chunkid + ".splitPart").toPath());
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -217,9 +214,8 @@ public class MessageHandler extends Thread {
             }
         }
         int chunkId = ByteBuffer.wrap(chunkIdArr).getInt();
-
-        log.info("Peer " + Integer.toString(peerId) + " has downloaded the piece " + Integer.toString(chunkId) + " from current peer port: " + Peer.currentPeer.getHostPort()
-                + " now the number of pieces it has is " + (GlobalConstants.chunkCount - Peer.currentPeer.getChunks().cardinality()));
+        log.info("Peer " + Peer.currentPeerID + " has downloaded the piece " + Integer.toString(chunkId) + " from " + Integer.toString(peerId)
+                + ". Now the number of pieces it has is " + (GlobalConstants.chunkCount - Peer.currentPeer.getChunks().cardinality()));
         OutputStream os;
         try {
             os = new FileOutputStream(new File(GlobalConstants.chunkDirectory + File.separator + chunkId + ".splitPart"));
@@ -231,6 +227,9 @@ public class MessageHandler extends Thread {
             Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         Peer.currentPeer.getChunks().set(chunkId);
+        if (Peer.currentPeer.getChunks().cardinality() == GlobalConstants.chunkCount) {
+            log.info("Peer " + Peer.currentPeerID + " has downloaded the complete file");
+        }
 
         sendHaveMessage(chunkIdArr);
 

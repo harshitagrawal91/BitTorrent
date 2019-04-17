@@ -42,7 +42,6 @@ public class PeerHandler extends Thread {
     public void run() {
         try {
             nextExpectedMessage = GlobalConstants.HANDSHAKE;
-            log.info("peer " + Peer.currentPeerID + "_input and output stream created");
             boolean check = false;
             try {
                 while (!exit) {

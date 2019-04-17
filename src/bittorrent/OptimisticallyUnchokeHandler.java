@@ -29,14 +29,13 @@ public class OptimisticallyUnchokeHandler implements Runnable {
             for (int peerid : interestedPeers.keySet()) {
                 PeerInfoConfigObject temp = interestedPeers.get(peerid);
                 if (temp.isOptimisticallyUnchoke() == true) {
-                    temp.setState(GlobalConstants.messageType.CHOKE.getValue());
-                    log.info("Peer " + Peer.currentPeer.getHostPort() + " has the optimistically unchoked neighbor " + Integer.toString(peerid));
+                    temp.setState(GlobalConstants.messageType.CHOKE.getValue());                   
                 }
 
                 sortedInterestedPeer.add(interestedPeers.get(peerid));
             }
 
-            log.info("Peer " + Peer.currentPeer.getHostPort() + " has the preferred neighbors " + sortedInterestedPeer);
+            log.info("Peer " + Peer.currentPeer.getHostPort() + " has the preferred neighbors " + sortedInterestedPeer.toString().replaceAll("\\[\\]", ""));
 
             Collections.sort(sortedInterestedPeer, (a, b) -> (int) (b.getDownloadSpeed() - a.getDownloadSpeed()));
             int k = GlobalConstants.commonConfig.getNumberOfPreferedNeighbour();
@@ -55,6 +54,7 @@ public class OptimisticallyUnchokeHandler implements Runnable {
                     unchokeMessage.setLength(1);
                     unchokeMessage.setMessageType(GlobalConstants.messageType.UNCHOKE.getValue());
                     randomPeer.getPeerHandler().sendMessage(unchokeMessage);
+                    log.info("Peer " + Peer.currentPeerID + " has the optimistically unchoked neighbor " +randomPeer.getPeerID());
                 }
             }
         }
